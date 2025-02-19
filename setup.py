@@ -180,12 +180,6 @@ else:
 
 setup(
     version=__version__,
-    py_modules=[
-        'sentencepiece/__init__',
-        'sentencepiece/_version',
-        'sentencepiece/sentencepiece_model_pb2',
-        'sentencepiece/sentencepiece_pb2',
-    ],
     ext_modules=[SENTENCEPIECE_EXT],
     cmdclass=cmdclass,
 )

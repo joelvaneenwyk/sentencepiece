@@ -13,3 +13,4 @@ include uv.lock
 include pyproject.toml
 include CMakeLists.txt
 include *.md VERSION.* build_bundled.sh
+global-exclude *.py[cod]$ {2:.DS_Store} __pycache__

@@ -5,7 +5,7 @@ description = "SentencePiece python wrapper"
 authors = [
     { name = "Taku Kudo", email = "taku@google.com" }
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 dependencies = []
 readme = "python/README.md"
 license = { file = "LICENSE" }
@@ -32,17 +32,18 @@ homepage = "https://github.com/google/sentencepiece"
 requires = ["setuptools", "wheel", "cmake", "ninja"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools.dynamic]
-#version = { attr = "sentencepiece._version" }
-#version = {file = "python/src/sentencepiece/_version.py", pattern = "^__version__ = [\"']([0-9.]+)[\"']'" }
-
 [tool.setuptools.packages.find]
 where = ["python/src/"]
+include = ["python/src/sentencepiece"]
 
 [tool.uv]
 managed = true
 package = true
 link-mode = "copy"
+
+[tool.pytest.ini_options]
+addopts = ["-v", "-s", "--doctest-modules", "--cov=sentencepiece", "--cov-report=term-missing"]
+testpaths = ["python/test"]
 
 [dependency-groups]
 dev = [
