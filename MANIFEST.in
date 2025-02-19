@@ -1,4 +1,15 @@
+recursive-include cmake *.cmake
+recursive-include data *.tsv *.pl *.txt
+recursive-include doc *.md
 recursive-include python/test *.py *.model botchan.txt
-recursive-include python/src *.i
+recursive-include python/src *.i *.sh *.ipynb *.md
 recursive-include python/src/sentencepiece *
+recursive-include src *.cc *.h *.txt *.proto
+recursive-include third_party LICENSE *.txt *.cc *.h *.hxx *.proto
+include LICENSE README.md
+include config.h.in sentencepiece.pc.in
+include taskfile.yaml
+include uv.lock
+include pyproject.toml
+include CMakeLists.txt
 include *.md VERSION.* build_bundled.sh
