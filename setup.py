@@ -14,15 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.!
 
-import codecs
 import os
-import string
 import subprocess
 import sys
 import platform
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext as _build_ext
-from setuptools.command.build_py import build_py as _build_py
 
 ROOT = os.path.abspath(os.path.dirname(__file__))
 PY_SRC_DIR = os.path.join(ROOT, 'python')
@@ -191,5 +188,4 @@ setup(
     ],
     ext_modules=[SENTENCEPIECE_EXT],
     cmdclass=cmdclass,
-    test_suite='sentencepiece_test.suite',
 )
