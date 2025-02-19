@@ -16,8 +16,18 @@ vars:
 tasks:
   default:
     cmds:
+      - task: build
       - task: build-python-extension
-      #- task: build
+
+  build:
+    sources:
+      - '**/*.cpp'
+      - '**/*.h'
+    generates:
+      - '{{.BUILD_DIR}}/bin/sentencepiece{{exeExt}}'
+    cmds:
+      - cmd: cmake -B "{{.BUILD_DIR}}"
+      - cmd: cmake --build "{{.BUILD_DIR}}" --config Release
 
   build-python-extension:
     aliases: [build-ext, py-ext, py]
@@ -28,7 +38,10 @@ tasks:
           cmd.exe /D /E:ON /C \
             "{{ joinPath .TASKFILE_DIR ".venv/Scripts/activate.bat" | fromSlash }}" \
             && python setup.py build -v
-          #python setup.py build_ext --inplace --verbose
+      - cmd: |
+          cmd.exe /D /E:ON /C \
+            "{{ joinPath .TASKFILE_DIR ".venv/Scripts/activate.bat" | fromSlash }}" \
+            && python setup.py build_ext --inplace --verbose
 
   run:
     deps: [build]
@@ -82,16 +95,6 @@ tasks:
       - git add --renormalize .
       - git reset --mixed
       - task revert-whitespace
-
-  build:
-    sources:
-      - '**/*.cpp'
-      - '**/*.h'
-    generates:
-      - '{{.BUILD_DIR}}/bin/sentencepiece{{exeExt}}'
-    cmds:
-      - cmd: cmake -B "{{.BUILD_DIR}}"
-      - cmd: cmake --build "{{.BUILD_DIR}}" --config Release
 
   revert-whitespace:
     cmds:
