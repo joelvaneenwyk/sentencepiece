@@ -23,6 +23,7 @@ Makefile.in
 /libtool
 /config.h
 /config.status
+
 /autogen.sh
 /ltmain.sh
 
@@ -78,3 +79,4 @@ python/sentencepiece
 
 .venv/
 .task/
+*.pyd
