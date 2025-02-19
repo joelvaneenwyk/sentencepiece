@@ -5,7 +5,7 @@ recursive-include python/test *.py *.model botchan.txt
 recursive-include python/src *.i *.sh *.ipynb *.md
 recursive-include python/src/sentencepiece *
 recursive-include src *.cc *.h *.txt *.proto
-recursive-include third_party LICENSE *.txt *.cc *.h *.hxx *.proto
+recursive-include third_party LICENSE *.inc *.txt *.cc *.h *.hxx *.proto
 include LICENSE README.md
 include config.h.in sentencepiece.pc.in
 include taskfile.yaml
