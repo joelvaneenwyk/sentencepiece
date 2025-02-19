@@ -16,7 +16,19 @@ vars:
 tasks:
   default:
     cmds:
-      - task: build
+      - task: build-python-extension
+      #- task: build
+
+  build-python-extension:
+    aliases: [build-ext, py-ext, py]
+    cmds:
+      - cmd: uv venv --allow-existing
+      - cmd: uv pip install wheel setuptools build
+      - cmd: |
+          cmd.exe /D /E:ON /C \
+            "{{ joinPath .TASKFILE_DIR ".venv/Scripts/activate.bat" | fromSlash }}" \
+            && python setup.py build -v
+          #python setup.py build_ext --inplace --verbose
 
   run:
     deps: [build]
