@@ -33,7 +33,8 @@ def long_description():
   return long_description
 
 
-exec(open('src/sentencepiece/_version.py').read())
+
+exec(open('python/src/sentencepiece/_version.py').read())
 
 
 def run_pkg_config(section, pkg_config_path=None):
@@ -119,17 +120,17 @@ def get_win_arch():
 if os.name == 'nt':
   # Must pre-install sentencepice into build directory.
   arch = get_win_arch()
-  if os.path.exists('..\\build\\root_{}\\lib'.format(arch)):
-    cflags = ['/std:c++17', '/I..\\build\\root_{}\\include'.format(arch)]
+  if os.path.exists('build\\root_{}\\lib'.format(arch)):
+    cflags = ['/std:c++17', '/Ibuild\\root_{}\\include'.format(arch)]
     libs = [
-        '..\\build\\root_{}\\lib\\sentencepiece.lib'.format(arch),
-        '..\\build\\root_{}\\lib\\sentencepiece_train.lib'.format(arch),
+        'build\\root_{}\\lib\\sentencepiece.lib'.format(arch),
+        'build\\root_{}\\lib\\sentencepiece_train.lib'.format(arch),
     ]
-  elif os.path.exists('..\\build\\root\\lib'):
-    cflags = ['/std:c++17', '/I..\\build\\root\\include']
+  elif os.path.exists('build\\root\\lib'):
+    cflags = ['/std:c++17', '/Ibuild\\root\\include']
     libs = [
-        '..\\build\\root\\lib\\sentencepiece.lib',
-        '..\\build\\root\\lib\\sentencepiece_train.lib',
+        'build\\root\\lib\\sentencepiece.lib',
+        'build\\root\\lib\\sentencepiece_train.lib',
     ]
   else:
     # build library locally with cmake and vc++.
@@ -140,9 +141,11 @@ if os.name == 'nt':
       cmake_arch = "ARM64"
     subprocess.check_call([
         'cmake',
-        'sentencepiece',
-        '-A',
-        cmake_arch,
+        '-S',
+        os.path.dirname(os.path.abspath(__file__)),
+        # #todo #jve only add architecture if running Visual Studio
+        # '-A',
+        # cmake_arch,
         '-B',
         'build',
         '-DSPM_ENABLE_SHARED=OFF',
@@ -167,7 +170,7 @@ if os.name == 'nt':
 
   SENTENCEPIECE_EXT = Extension(
       'sentencepiece._sentencepiece',
-      sources=['src/sentencepiece/sentencepiece_wrap.cxx'],
+      sources=['python/src/sentencepiece/sentencepiece_wrap.cxx'],
       extra_compile_args=cflags,
       extra_link_args=libs,
   )
@@ -175,7 +178,7 @@ if os.name == 'nt':
 else:
   SENTENCEPIECE_EXT = Extension(
       'sentencepiece._sentencepiece',
-      sources=['src/sentencepiece/sentencepiece_wrap.cxx'],
+      sources=['python/src/sentencepiece/sentencepiece_wrap.cxx'],
   )
   cmdclass = {'build_ext': build_ext}
 
@@ -184,8 +187,6 @@ setup(
     author='Taku Kudo',
     author_email='taku@google.com',
     description='SentencePiece python wrapper',
-    long_description=long_description(),
-    long_description_content_type='text/markdown',
     version=__version__,
     package_dir={'': 'src'},
     url='https://github.com/google/sentencepiece',
