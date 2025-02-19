@@ -10,12 +10,30 @@ dependencies = []
 readme = "python/README.md"
 license = { file = "LICENSE" }
 
+classifiers=[
+    'Development Status :: 5 - Production/Stable',
+    'Environment :: Console',
+    'Intended Audience :: Developers',
+    'Intended Audience :: Science/Research',
+    'License :: OSI Approved :: Apache Software License',
+    'Operating System :: Unix',
+    'Programming Language :: Python',
+    'Topic :: Text Processing :: Linguistic',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+]
+
 [project.scripts]
 python = "sentencepiece:main"
+
+[project.urls]
+homepage = "https://github.com/google/sentencepiece"
 
 [build-system]
 requires = ["setuptools", "wheel", "cmake", "ninja"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package_dir = { "" = "python/src" }
 
 [tool.setuptools.packages.find]
 where = ["python/src/"]

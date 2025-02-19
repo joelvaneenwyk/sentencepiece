@@ -182,15 +182,7 @@ else:
   cmdclass = {'build_ext': build_ext}
 
 setup(
-    name='sentencepiece',
-    author='Taku Kudo',
-    author_email='taku@google.com',
-    description='SentencePiece python wrapper',
     version=__version__,
-    package_dir={'': 'python/src'},
-    url='https://github.com/google/sentencepiece',
-    license='Apache',
-    platforms='Unix',
     py_modules=[
         'sentencepiece/__init__',
         'sentencepiece/_version',
@@ -199,17 +191,5 @@ setup(
     ],
     ext_modules=[SENTENCEPIECE_EXT],
     cmdclass=cmdclass,
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: Apache Software License',
-        'Operating System :: Unix',
-        'Programming Language :: Python',
-        'Topic :: Text Processing :: Linguistic',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-    ],
     test_suite='sentencepiece_test.suite',
-    # tests_require=['pytest'],
 )
