@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+# cspell:ignore taskfile,vcpkg,msbuild,makefiles,deinit
+
+version: '3'
+
+vars:
+  DEFAULT_CONFIG: Release
+  DEFAULT_PLATFORM: x64
+  DEFAULT_SOLUTION: sentencepiece.sln
+  PLATFORMS: [Win32, x64]
+  CONFIGURATIONS:
+    - Debug
+    - Release
+  BUILD_DIR: build/task
+
+tasks:
+  default:
+    cmds:
+      - task: build
+
+  run:
+    deps: [build]
+    cmds:
+      - cmd: '{{.BUILD_DIR}}/bin/sentencepiece{{exeExt}}'
+
+  build-all-configurations:
+    aliases: [all, check, lint, ci]
+    silent: true
+    cmds:
+      - for: { var: CONFIGURATIONS }
+        task: build-all-platforms
+        vars: { CONFIG: '{{ .ITEM }}' }
+
+  build-all-platforms:
+    silent: true
+    cmds:
+      - for: { var: PLATFORMS }
+        task: msbuild
+        vars: { PLATFORM: '{{ .ITEM }}', CONFIG: '{{ .CONFIG }}' }
+
+  msbuild:
+    silent: true
+    vars:
+      MSBUILD:
+        sh: | # shell
+          strings=("Preview" "Enterprise" "Professional" "Community")
+          for str in "${strings[@]}"
+          do
+            result="C:/Program Files/Microsoft Visual Studio/2022/${str}/MSBuild/Current/Bin/amd64/MSBuild.exe"
+            if [ -e "$result" ]; then
+              echo "$result"
+              break
+            fi
+          done
+      MSBUILD_CONFIG: '{{ .CONFIG | default .DEFAULT_CONFIG }}'
+      MSBUILD_SOLUTION: '{{ joinPath .TASKFILE_DIR (.SOLUTION | default .DEFAULT_SOLUTION) }}'
+      MSBUILD_PLATFORM: '{{ .PLATFORM | default .DEFAULT_PLATFORM }}'
+    cmds:
+      - cmd: echo "Building '{{ .MSBUILD_SOLUTION }}' with '{{ .MSBUILD_CONFIG }}' configuration."
+      - cmd: >-
+          "{{fromSlash .MSBUILD}}"
+          /m
+          /t:Build
+          /p:Configuration="{{.MSBUILD_CONFIG}}"
+          /p:Platform="{{.MSBUILD_PLATFORM}}"
+          "{{fromSlash .MSBUILD_SOLUTION}}"
+
+  pre-commit:
+    cmds:
+      - git add --renormalize .
+      - git reset --mixed
+      - task revert-whitespace
+
+  build:
+    sources:
+      - '**/*.cpp'
+      - '**/*.h'
+    generates:
+      - '{{.BUILD_DIR}}/bin/sentencepiece{{exeExt}}'
+    cmds:
+      - cmd: cmake -B "{{.BUILD_DIR}}"
+      - cmd: cmake --build "{{.BUILD_DIR}}" --config Release
+
+  revert-whitespace:
+    cmds:
+      - cmd: git diff -U0 -w --no-color | git apply --cached --ignore-whitespace --unidiff-zero -
