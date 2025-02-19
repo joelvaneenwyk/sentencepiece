@@ -24,18 +24,11 @@ from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext as _build_ext
 from setuptools.command.build_py import build_py as _build_py
 
-sys.path.append(os.path.join('.', 'test'))
+ROOT = os.path.abspath(os.path.dirname(__file__))
+PY_SRC_DIR = os.path.join(ROOT, 'python')
 
-
-def long_description():
-  with codecs.open('README.md', 'r', 'utf-8') as f:
-    long_description = f.read()
-  return long_description
-
-
-
-exec(open('python/src/sentencepiece/_version.py').read())
-
+sys.path.append(os.path.join(PY_SRC_DIR, 'test'))
+exec(open(os.path.join(PY_SRC_DIR, 'src/sentencepiece/_version.py')).read())
 
 def run_pkg_config(section, pkg_config_path=None):
   try:
@@ -79,7 +72,7 @@ class build_ext(_build_ext):
   """Override build_extension to run cmake."""
 
   def build_extension(self, ext):
-    cflags, libs = get_cflags_and_libs('../build/root')
+    cflags, libs = get_cflags_and_libs('./build/root')
 
     if len(libs) == 0:
       if is_sentencepiece_installed():
@@ -120,53 +113,59 @@ def get_win_arch():
 if os.name == 'nt':
   # Must pre-install sentencepice into build directory.
   arch = get_win_arch()
-  if os.path.exists('build\\root_{}\\lib'.format(arch)):
-    cflags = ['/std:c++17', '/Ibuild\\root_{}\\include'.format(arch)]
+
+  # build library locally with cmake and vc++.
+  cmake_arch = 'Win32'
+  if arch == 'amd64':
+    cmake_arch = 'x64'
+  elif arch == "arm64":
+    cmake_arch = "ARM64"
+  subprocess.check_call([
+      'cmake',
+      '-S',
+      os.path.dirname(os.path.abspath(__file__)),
+      '-G',
+      'Visual Studio 17 2022',
+      '-A',
+      cmake_arch,
+      '-B',
+      'build/setup-py',
+      '-DSPM_ENABLE_SHARED=OFF',
+      '-DCMAKE_INSTALL_PREFIX=build/root',
+  ])
+  subprocess.check_call([
+      'cmake',
+      '--build',
+      'build/setup-py',
+      '--config',
+      'Release',
+      '--target',
+      'install',
+      '--parallel',
+      '8',
+  ])
+
+  if os.path.exists('.\\build\\root_{}\\lib'.format(arch)):
+    cflags = ['/std:c++17', '/I.\\build\\root_{}\\include'.format(arch)]
     libs = [
-        'build\\root_{}\\lib\\sentencepiece.lib'.format(arch),
-        'build\\root_{}\\lib\\sentencepiece_train.lib'.format(arch),
+        '.\\build\\root_{}\\lib\\sentencepiece.lib'.format(arch),
+        '.\\build\\root_{}\\lib\\sentencepiece_train.lib'.format(arch),
     ]
-  elif os.path.exists('build\\root\\lib'):
-    cflags = ['/std:c++17', '/Ibuild\\root\\include']
-    libs = [
-        'build\\root\\lib\\sentencepiece.lib',
-        'build\\root\\lib\\sentencepiece_train.lib',
-    ]
-  else:
-    # build library locally with cmake and vc++.
-    cmake_arch = 'Win32'
-    if arch == 'amd64':
-      cmake_arch = 'x64'
-    elif arch == "arm64":
-      cmake_arch = "ARM64"
-    subprocess.check_call([
-        'cmake',
-        '-S',
-        os.path.dirname(os.path.abspath(__file__)),
-        # #todo #jve only add architecture if running Visual Studio
-        # '-A',
-        # cmake_arch,
-        '-B',
-        'build',
-        '-DSPM_ENABLE_SHARED=OFF',
-        '-DCMAKE_INSTALL_PREFIX=build\\root',
-    ])
-    subprocess.check_call([
-        'cmake',
-        '--build',
-        'build',
-        '--config',
-        'Release',
-        '--target',
-        'install',
-        '--parallel',
-        '8',
-    ])
+  elif os.path.exists('.\\build\\root\\lib\\sentencepiece.lib'):
     cflags = ['/std:c++17', '/I.\\build\\root\\include']
     libs = [
         '.\\build\\root\\lib\\sentencepiece.lib',
         '.\\build\\root\\lib\\sentencepiece_train.lib',
     ]
+  elif os.path.exists('.\\build\\root\\lib\\libsentencepiece.a'):
+    cflags = ['/std:c++17', '/I.\\build\\root\\include']
+    libs = [
+        '.\\build\\root\\lib\\libsentencepiece.a',
+        '.\\build\\root\\lib\\libsentencepiece_train.a',
+    ]
+  else:
+    sys.stderr.write('Failed to find sentencepiece library\n')
+    sys.exit(1)
 
   SENTENCEPIECE_EXT = Extension(
       'sentencepiece._sentencepiece',
@@ -188,7 +187,7 @@ setup(
     author_email='taku@google.com',
     description='SentencePiece python wrapper',
     version=__version__,
-    package_dir={'': 'src'},
+    package_dir={'': 'python/src'},
     url='https://github.com/google/sentencepiece',
     license='Apache',
     platforms='Unix',
@@ -212,5 +211,5 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     test_suite='sentencepiece_test.suite',
-    tests_require=['pytest'],
+    # tests_require=['pytest'],
 )

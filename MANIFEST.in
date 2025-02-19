@@ -1,4 +1,4 @@
-recursive-include test *.py *.model botchan.txt
-recursive-include src *.i
-recursive-include sentencepiece *
+recursive-include python/test *.py *.model botchan.txt
+recursive-include python/src *.i
+recursive-include python/src/sentencepiece *
 include *.md VERSION.* build_bundled.sh
