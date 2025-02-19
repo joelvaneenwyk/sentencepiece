@@ -77,3 +77,4 @@ third_party/abseil-cpp
 python/sentencepiece
 
 .venv/
+.task/
