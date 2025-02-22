@@ -83,3 +83,5 @@ python/sentencepiece
 .mypy_cache/
 .task/
 *.pyd
+.coverage
+*.pickle
