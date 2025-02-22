@@ -180,7 +180,7 @@ else:
   cmdclass = {'build_ext': build_ext}
 
 setup(
-    version=__version__,
+    version=__version__,  # type: ignore
     ext_modules=[SENTENCEPIECE_EXT],
     cmdclass=cmdclass,
 )
