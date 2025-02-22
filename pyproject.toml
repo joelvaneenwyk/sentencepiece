@@ -22,9 +22,6 @@ classifiers=[
     'Topic :: Software Development :: Libraries :: Python Modules',
 ]
 
-[project.scripts]
-python = "sentencepiece:main"
-
 [project.urls]
 homepage = "https://github.com/google/sentencepiece"
 
