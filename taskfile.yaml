@@ -35,13 +35,9 @@ tasks:
       - cmd: uv venv --allow-existing
       - cmd: uv pip install wheel setuptools build
       - cmd: |
-          cmd.exe /D /E:ON /C \
-            "{{ joinPath .TASKFILE_DIR ".venv/Scripts/activate.bat" | fromSlash }}" \
-            && python setup.py build -v
+          uv run --no-sync python setup.py build -v
       - cmd: |
-          cmd.exe /D /E:ON /C \
-            "{{ joinPath .TASKFILE_DIR ".venv/Scripts/activate.bat" | fromSlash }}" \
-            && python setup.py build_ext --inplace --verbose
+          uv run --no-sync python setup.py build_ext --inplace --verbose
 
   run:
     deps: [build]
