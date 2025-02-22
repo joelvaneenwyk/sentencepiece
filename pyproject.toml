@@ -22,14 +22,11 @@ classifiers=[
     'Topic :: Software Development :: Libraries :: Python Modules',
 ]
 
-[project.scripts]
-python = "sentencepiece:main"
-
 [project.urls]
 homepage = "https://github.com/google/sentencepiece"
 
 [build-system]
-requires = ["setuptools", "wheel", "cmake", "ninja"]
+requires = ["setuptools>=61", "wheel", "cmake", "ninja"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]

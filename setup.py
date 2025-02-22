@@ -128,6 +128,7 @@ if os.name == 'nt':
       '-B',
       'build/setup-py',
       '-DSPM_ENABLE_SHARED=OFF',
+      '-DSPM_ENABLE_TENSORFLOW_SHARED=ON',
       '-DCMAKE_INSTALL_PREFIX=build/root',
   ])
   subprocess.check_call([
@@ -179,7 +180,7 @@ else:
   cmdclass = {'build_ext': build_ext}
 
 setup(
-    version=__version__,
+    version=__version__,  # type: ignore
     ext_modules=[SENTENCEPIECE_EXT],
     cmdclass=cmdclass,
 )
