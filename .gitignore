@@ -82,6 +82,7 @@ python/sentencepiece
 .venv/
 .mypy_cache/
 .task/
+.pytest_cache/
 *.pyd
 .coverage
 *.pickle
