@@ -186,9 +186,7 @@ if os.name == 'nt':
 
   SENTENCEPIECE_EXT = Extension(
       'sentencepiece._sentencepiece',
-      sources=[
-        os.path.join(source_dir, "python/src/sentencepiece/sentencepiece_wrap.cxx")
-      ],
+      sources=["python/src/sentencepiece/sentencepiece_wrap.cxx"],
       extra_compile_args=cflags,
       extra_link_args=libs,
   )
