@@ -2,15 +2,13 @@
 name = "sentencepiece"
 dynamic = ["version"]
 description = "SentencePiece python wrapper"
-authors = [
-    { name = "Taku Kudo", email = "taku@google.com" }
-]
+authors = [{ name = "Taku Kudo", email = "taku@google.com" }]
 requires-python = ">=3.9"
 dependencies = []
 readme = "python/README.md"
 license = { file = "LICENSE" }
 
-classifiers=[
+classifiers = [
     'Development Status :: 5 - Production/Stable',
     'Environment :: Console',
     'Intended Audience :: Developers',
@@ -39,7 +37,13 @@ package = true
 link-mode = "copy"
 
 [tool.pytest.ini_options]
-addopts = ["-v", "-s", "--doctest-modules", "--cov=sentencepiece", "--cov-report=term-missing"]
+addopts = [
+    "-v",
+    "-s",
+    "--doctest-modules",
+    "--cov=sentencepiece",
+    "--cov-report=term-missing",
+]
 testpaths = ["python/test"]
 
 [dependency-groups]

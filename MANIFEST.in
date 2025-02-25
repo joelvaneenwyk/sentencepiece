@@ -6,12 +6,15 @@ recursive-include src           *.cc *.h *.txt *.proto
 recursive-include third_party   LICENSE *.inc *.txt *.cc *.h *.hxx *.proto
 
 include LICENSE README.md
-include config.h.in sentencepiece.pc.in
+include config.h.in
+include sentencepiece.pc.in
 include taskfile.yaml
 include uv.lock
 include pyproject.toml
 include CMakeLists.txt
-include *.md VERSION.* build_bundled.sh
+include VERSION.txt
+include build_bundled.sh
+include build_sdist.sh
 
 global-exclude */__pycache__/*
 global-exclude *.pyc
