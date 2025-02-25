@@ -20,6 +20,12 @@ tasks:
       - task: build
       - task: build-python-extension
 
+  test:
+    cmds:
+      - cmd: |
+          uvx --from "cibuildwheel" --with "pip" --python 3.9 --python-preference only-managed \
+            python -m cibuildwheel --output-dir wheelhouse
+
   build:
     sources:
       - '**/*.cpp'
