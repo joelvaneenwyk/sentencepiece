@@ -2,11 +2,11 @@ name: Build Wheels
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
     tags:
-      - 'v*'
+      - "v*"
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 permissions:
   contents: read
@@ -24,7 +24,7 @@ jobs:
     name: Build wheels on ${{ matrix.os }}
 
     permissions:
-      contents: write # svenstaro/upload-release-action 
+      contents: write # svenstaro/upload-release-action
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -57,13 +57,13 @@ jobs:
           CMAKE_OSX_ARCHITECTURES: arm64;x86_64
 
       - name: Install cibuildwheel
-        working-directory: ${{github.workspace}}/python
+        working-directory: ${{github.workspace}}
         run: |
           python -m pip install --require-hashes --no-dependencies -r ../.github/workflows/requirements/base.txt
           python -m pip install --require-hashes --no-dependencies -r ../.github/workflows/requirements/cibuildwheel.txt
 
       - name: Build wheels
-        working-directory: ${{github.workspace}}/python
+        working-directory: ${{github.workspace}}
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_ARCHS_LINUX: auto aarch64
@@ -73,20 +73,20 @@ jobs:
           CIBW_BUILD_VERBOSITY: 1
 
       - name: Build sdist archive
-        working-directory: ${{github.workspace}}/python
+        working-directory: ${{github.workspace}}
         run: sh build_sdist.sh
 
       - name: Fetch sdist archive
         uses: tj-actions/glob@2944188f585a0ec102a6a82d9eeb3aed69785393 # v22.0.1
         id: sdist
         with:
-          files: ./python/dist/*.tar.gz
+          files: ./dist/*.tar.gz
 
       - name: Build wheel from sdist
         run: python -m pip wheel "${{ steps.sdist.outputs.paths }}" --verbose
 
       - name: Copy sdist
-        working-directory: ${{github.workspace}}/python
+        working-directory: ${{github.workspace}}
         if: runner.os == 'macOS'
         run: cp -f dist/*.tar.gz wheelhouse/
 
@@ -95,15 +95,15 @@ jobs:
         with:
           name: artifacts
           path: |
-            ./python/wheelhouse/*.whl
-            ./python/wheelhouse/*.tar.gz
+            ./wheelhouse/*.whl
+            ./wheelhouse/*.tar.gz
 
       - name: Upload wheel release
         if: startsWith(github.ref, 'refs/tags/')
         uses: svenstaro/upload-release-action@04733e069f2d7f7f0b4aebc4fbdbce8613b03ccd # v2.9.0
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./python/wheelhouse/*
+          file: ./wheelhouse/*
           tag: ${{ github.ref }}
           overwrite: true
           prerelease: true
@@ -112,17 +112,17 @@ jobs:
       - name: Generate SLSA subjects - Macos
         id: hash-macos
         if: runner.os == 'macOS'
-        run: echo "digests=$(shasum -a 256 ./python/wheelhouse/* | base64)" >> $GITHUB_OUTPUT
+        run: echo "digests=$(shasum -a 256 ./wheelhouse/* | base64)" >> $GITHUB_OUTPUT
 
       - name: Generate SLSA subjects - Linux
         id: hash-linux
         if: runner.os == 'Linux'
-        run: echo "digests=$(sha256sum ./python/wheelhouse/* | base64 -w0)" >> $GITHUB_OUTPUT
+        run: echo "digests=$(sha256sum ./wheelhouse/* | base64 -w0)" >> $GITHUB_OUTPUT
 
       - name: Generate SLSA subjects - Windows
         id: hash-windows
         if: runner.os == 'Windows'
-        run: echo "digests=$(sha256sum ./python/wheelhouse/* | base64 -w0)" >> $GITHUB_OUTPUT
+        run: echo "digests=$(sha256sum ./wheelhouse/* | base64 -w0)" >> $GITHUB_OUTPUT
 
   gather-disgests:
     needs: [build_wheels]
@@ -147,7 +147,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     needs: [build_wheels, gather-disgests]
     permissions:
-      actions: read   # To read the workflow path.
+      actions: read # To read the workflow path.
       id-token: write # To sign the provenance.
       contents: write # To add assets to a release.
     uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
