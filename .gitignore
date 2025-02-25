@@ -79,7 +79,7 @@ python/sentencepiece/
 python/build/
 
 /wheelhouse/
-/sentencepiece-*/
+/sentencepiece*/
 /.git/
 
 .venv/
