@@ -1,5 +1,10 @@
-#!/usr/bin/env python
-
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.9"
+# dependencies = [
+#     "setuptools>=60",
+# ]
+# ///
 # Copyright 2018 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
