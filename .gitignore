@@ -75,7 +75,8 @@ python/bundled
 _sentencepiece.*.so
 third_party/abseil-cpp
 
-python/sentencepiece
+python/sentencepiece/
+python/build/
 
 /sentencepiece-*/
 /.git/
