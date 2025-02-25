@@ -29,6 +29,15 @@ tasks:
       - cmd: cmake -B "{{.BUILD_DIR}}"
       - cmd: cmake --build "{{.BUILD_DIR}}" --config Release
 
+  sync:
+    sources:
+      - pyproject.toml
+    generates:
+      - .venv/pyvenv.cfg
+    cmds:
+      - cmd: rm -f uv.lock
+      - cmd: uv sync
+
   build-python-extension:
     aliases: [build-ext, py-ext, py]
     cmds:
@@ -38,6 +47,37 @@ tasks:
           uv run --no-sync python setup.py build -v
       - cmd: |
           uv run --no-sync python setup.py build_ext --inplace --verbose
+
+  ci-wheels:
+    deps: [sync]
+    cmds: 
+      - cmd: |
+          uv run --no-sync python -m cibuildwheel \
+            --output-dir wheelhouse
+
+  ci-build:
+    cmds:
+      - cmd: |
+          cmake -S . -G "Visual Studio 17 2022" -A Win32 -B "./build_win32" \
+            -DSPM_ENABLE_SHARED=OFF \
+            -DCMAKE_INSTALL_PREFIX=./build/root_win32
+      - cmd: |
+          cmake --build "./build_win32" \
+            --config Release --target install --parallel 8
+      - cmd: |
+          cmake -G "Visual Studio 17 2022" -A x64   -B ./build_amd64 \
+            -DSPM_ENABLE_SHARED=OFF \
+            -DCMAKE_INSTALL_PREFIX=./build/root_amd64
+      - cmd: |
+          cmake --build ./build_amd64 \
+            --config Release --target install --parallel 8
+      - cmd: |
+          cmake -G "Visual Studio 17 2022" -A arm64 -B ./build_arm64 \
+            -DSPM_ENABLE_SHARED=OFF \
+            -DCMAKE_INSTALL_PREFIX=./build/root_arm64
+      - cmd: |
+          cmake --build ./build_arm64 \
+            --config Release --target install --parallel 8
 
   run:
     deps: [build]
