@@ -23,14 +23,17 @@ import os
 import subprocess
 import sys
 import platform
-from setuptools import Extension, setup
-from setuptools.command.build_ext import build_ext as _build_ext
+from setuptools import Extension, setup  # type: ignore
+from setuptools.command.build_ext import build_ext as _build_ext  # type: ignore
 
 ROOT = os.path.abspath(os.path.dirname(__file__))
 PY_SRC_DIR = os.path.join(ROOT, 'python')
 
 sys.path.append(os.path.join(PY_SRC_DIR, 'test'))
+
 exec(open(os.path.join(PY_SRC_DIR, 'src/sentencepiece/_version.py')).read())
+PACKAGE_VERSION = __version__  # type: ignore  # noqa
+
 
 def run_pkg_config(section, pkg_config_path=None):
   try:
@@ -122,24 +125,41 @@ if os.name == 'nt':
     cmake_arch = 'x64'
   elif arch == "arm64":
     cmake_arch = "ARM64"
+
+  # Select VS version based on Python version
+  if sys.version_info >= (3, 10):
+    vs_version = 'Visual Studio 17 2022'
+  elif sys.version_info >= (3, 8):
+    vs_version = 'Visual Studio 16 2019'
+  else:
+    vs_version = 'Visual Studio 15 2017'
+
+  source_dir = os.path.abspath(os.path.dirname(__file__))
+  build_dir = os.path.join(
+    source_dir,
+    'build/setup_{}_{}'.format(arch, vs_version.replace("Visual Studio", "VS").lower().replace(" ", "_")))
+  install_dir = os.path.join(
+    source_dir,
+    'build/root_{}'.format(arch)
+  )
   subprocess.check_call([
       'cmake',
       '-S',
-      os.path.dirname(os.path.abspath(__file__)),
+      source_dir,
       '-G',
-      'Visual Studio 17 2022',
+      vs_version,
       '-A',
       cmake_arch,
       '-B',
-      'build/setup-py-{}'.format(arch),
+      build_dir,
       '-DSPM_ENABLE_SHARED=OFF',
       '-DSPM_ENABLE_TENSORFLOW_SHARED=ON',
-      '-DCMAKE_INSTALL_PREFIX=build/root_{}'.format(arch),
+      '-DCMAKE_INSTALL_PREFIX={}'.format(install_dir),
   ])
   subprocess.check_call([
       'cmake',
       '--build',
-      'build/setup-py-{}'.format(arch),
+      build_dir,
       '--config',
       'Release',
       '--target',
@@ -148,31 +168,27 @@ if os.name == 'nt':
       '8',
   ])
 
-  if os.path.exists('.\\build\\root_{}\\lib'.format(arch)):
-    cflags = ['/std:c++17', '/I.\\build\\root_{}\\include'.format(arch)]
-    libs = [
-        '.\\build\\root_{}\\lib\\sentencepiece.lib'.format(arch),
-        '.\\build\\root_{}\\lib\\sentencepiece_train.lib'.format(arch),
-    ]
-  elif os.path.exists('.\\build\\root\\lib\\sentencepiece.lib'):
-    cflags = ['/std:c++17', '/I.\\build\\root\\include']
-    libs = [
-        '.\\build\\root\\lib\\sentencepiece.lib',
-        '.\\build\\root\\lib\\sentencepiece_train.lib',
-    ]
-  elif os.path.exists('.\\build\\root\\lib\\libsentencepiece.a'):
-    cflags = ['/std:c++17', '/I.\\build\\root\\include']
-    libs = [
-        '.\\build\\root\\lib\\libsentencepiece.a',
-        '.\\build\\root\\lib\\libsentencepiece_train.a',
-    ]
-  else:
+  cflags = ['/std:c++17', '/I{}/include'.format(install_dir)]
+  libs = [
+      lib
+      for lib in [
+        '{}/lib/sentencepiece.lib'.format(install_dir),
+        '{}/lib/sentencepiece_train.lib'.format(install_dir),
+        '{}/lib/libsentencepiece.a'.format(install_dir),
+        '{}/lib/libsentencepiece_train.a'.format(install_dir),
+      ]
+      if os.path.exists(lib)
+  ]
+
+  if not libs:
     sys.stderr.write('Failed to find sentencepiece library\n')
-    sys.exit(1)
+    sys.exit(2)
 
   SENTENCEPIECE_EXT = Extension(
       'sentencepiece._sentencepiece',
-      sources=['python/src/sentencepiece/sentencepiece_wrap.cxx'],
+      sources=[
+        os.path.join(source_dir, "python/src/sentencepiece/sentencepiece_wrap.cxx")
+      ],
       extra_compile_args=cflags,
       extra_link_args=libs,
   )
@@ -185,7 +201,16 @@ else:
   cmdclass = {'build_ext': build_ext}
 
 setup(
-    version=__version__,  # type: ignore
+    version=PACKAGE_VERSION,  # type: ignore
     ext_modules=[SENTENCEPIECE_EXT],
+    py_modules=[
+        'sentencepiece/__init__',
+        'sentencepiece/_version',
+        'sentencepiece/sentencepiece_model_pb2',
+        'sentencepiece/sentencepiece_pb2',
+    ],
+    package_dir={'': 'python/src'},
     cmdclass=cmdclass,
+    test_suite='sentencepiece_test.suite',
+    tests_require=['pytest', 'pytest-cov'],
 )
