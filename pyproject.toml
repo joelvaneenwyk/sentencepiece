@@ -55,5 +55,19 @@ dev = [
     "pytest-cov>=6.0.0",
     "ruff>=0.9.6",
     "setuptools>=75.8.0",
+    "tox>=4.24.1",
     "wheel>=0.45.1",
 ]
+
+[tool.tox]
+requires = ["tox>=4.19"]
+env_list = ["3.13", "3.12", "type"]
+
+[tool.tox.env_run_base]
+description = "Run test under {base_python}"
+commands = [["pytest"]]
+
+[tool.tox.env.type]
+description = "run type check on code base"
+deps = ["mypy==1.11.2", "types-cachetools>=5.5.0.20240820", "types-chardet>=5.0.4.6"]
+commands = [["mypy", "src{/}tox"], ["mypy", "tests"]]
