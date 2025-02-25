@@ -2,15 +2,13 @@
 name = "sentencepiece"
 dynamic = ["version"]
 description = "SentencePiece python wrapper"
-authors = [
-    { name = "Taku Kudo", email = "taku@google.com" }
-]
+authors = [{ name = "Taku Kudo", email = "taku@google.com" }]
 requires-python = ">=3.9"
 dependencies = []
 readme = "python/README.md"
 license = { file = "LICENSE" }
 
-classifiers=[
+classifiers = [
     'Development Status :: 5 - Production/Stable',
     'Environment :: Console',
     'Intended Audience :: Developers',
@@ -26,12 +24,61 @@ classifiers=[
 homepage = "https://github.com/google/sentencepiece"
 
 [build-system]
-requires = ["setuptools>=61", "wheel", "build", "cmake", "ninja"]
-build-backend = "setuptools.build_meta"
+requires = ["py-build-cmake", "swig"]
+build-backend = "py_build_cmake.build"
 
-[tool.setuptools.packages.find]
-where = ["python/src/"]
-include = ["python/src/sentencepiece"]
+[tool.py-build-cmake.module]
+name = "sentencepiece"   # Import name
+directory = "python/src"
+
+[tool.py-build-cmake.sdist]
+include = [
+    "MANIFEST.in",
+    "pyproject.toml",
+    "LICENSE",
+    "VERSION.txt",
+    "README.md",
+    "sentencepiece.pc.in",
+    "config.h.in",
+    "build_*.sh",
+    "CMakeLists.txt",
+    "cmake/*",
+    "src/",
+    "python/",
+    "third_party/",
+]
+exclude = ["build/", "python/build/", "python/src/sentencepiece/*.pyd"]
+
+[tool.py-build-cmake.cmake]
+minimum_version = "3.18"
+build_type = "Release"
+source_path = "."                       # Containing CMakeLists.txt
+args = ["-Wdev"]
+build_path = "build/setup-py"
+build_args = ["-j"]
+build_tool_args = []
+install_args = ["--verbose"]
+install_components = ["python_modules"]
+
+[tool.py-build-cmake.cmake.options]
+SPM_ENABLE_SHARED = "OFF"
+SPM_ENABLE_TENSORFLOW_SHARED = "ON"
+CMAKE_INSTALL_PREFIX = "build/root"
+
+[tool.py-build-cmake.cmake.env]
+
+[tool.py-build-cmake.linux.cmake] # Linux-specific options
+generator = "Ninja"
+
+[tool.py-build-cmake.mac.cmake] # macOS-specific options
+generator = "Ninja"
+
+[tool.py-build-cmake.windows.cmake] # Windows-specific options
+generator = "Visual Studio 17 2022"
+
+[tool.py-build-cmake.wheel]
+python_abi = 'abi3'
+abi3_minimum_cpython_version = 38 # Should match Py_LIMITED_API
 
 [tool.uv]
 managed = true
@@ -39,7 +86,13 @@ package = true
 link-mode = "copy"
 
 [tool.pytest.ini_options]
-addopts = ["-v", "-s", "--doctest-modules", "--cov=sentencepiece", "--cov-report=term-missing"]
+addopts = [
+    "-v",
+    "-s",
+    "--doctest-modules",
+    "--cov=sentencepiece",
+    "--cov-report=term-missing",
+]
 testpaths = ["python/test"]
 
 [dependency-groups]

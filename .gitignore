@@ -81,6 +81,7 @@ python/build/
 /sentencepiece-*/
 /.git/
 
+.py-build-cmake*/
 .venv/
 .mypy_cache/
 .task/
