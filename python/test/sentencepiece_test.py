@@ -15,26 +15,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.!
 
-import sys
-
-sys.path.insert(0, 'src')
-
-from collections import defaultdict
 import io
 import os
 import pickle
+import sys
 import unittest
-import sentencepiece as spm  # type: ignore
+from collections import defaultdict
 
-print('VERSION={}'.format(spm.__version__))
+TEST_DIR = os.path.dirname(__file__)
+SRC_ROOT_DIR = os.path.normpath(os.path.join(TEST_DIR, os.pardir, os.pardir))
+sys.path.insert(0, os.path.join(SRC_ROOT_DIR, 'python', 'src'))
 
-TEST_DATA_DIR = os.path.dirname(__file__)
-TEST_MODEL_PATH = os.path.join(TEST_DATA_DIR, 'test_model.model')
-TEST_MODEL_JA_PATH = os.path.join(TEST_DATA_DIR, 'test_ja_model.model')
+import sentencepiece as spm  # type: ignore  # noqa: E402
 
-data_dir = 'test'
-if sys.platform == 'win32':
-  data_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'data'))
+TEST_MODEL_PATH = os.path.join(TEST_DIR, 'test_model.model')
+TEST_MODEL_JA_PATH = os.path.join(TEST_DIR, 'test_ja_model.model')
+
+if os.path.exists(os.path.join(TEST_DIR, 'botchan.txt')):
+  SRC_DATA_DIR = TEST_DIR
+else:
+  SRC_DATA_DIR = os.path.join(SRC_ROOT_DIR, 'data')
 
 
 class TestSentencepieceProcessor(unittest.TestCase):
@@ -213,12 +213,12 @@ class TestSentencepieceProcessor(unittest.TestCase):
   def test_train(self):
     spm.SentencePieceTrainer.Train(
         '--input='
-        + os.path.join(data_dir, 'botchan.txt')
+        + os.path.join(SRC_DATA_DIR, 'botchan.txt')
         + ' --model_prefix=m --vocab_size=1000'
     )
     sp = spm.SentencePieceProcessor()
     sp.Load('m.model')
-    with open(os.path.join(data_dir, 'botchan.txt'), 'r') as file:
+    with open(os.path.join(SRC_DATA_DIR, 'botchan.txt'), 'r') as file:
       for line in file:
         sp.DecodePieces(sp.EncodeAsPieces(line))
         sp.DecodeIds(sp.EncodeAsIds(line))
@@ -226,7 +226,7 @@ class TestSentencepieceProcessor(unittest.TestCase):
   def test_train_iterator(self):
     spm.SentencePieceTrainer.Train(
         '--input='
-        + os.path.join(data_dir, 'botchan.txt')
+        + os.path.join(SRC_DATA_DIR, 'botchan.txt')
         + ' --model_prefix=m --vocab_size=1000'
     )
     # Load as 'rb' for Python3.5/2.7.
@@ -235,13 +235,13 @@ class TestSentencepieceProcessor(unittest.TestCase):
 
     # suppress logging (redirect to /dev/null)
     spm.SentencePieceTrainer.train(
-        input=os.path.join(data_dir, 'botchan.txt'),
+        input=os.path.join(SRC_DATA_DIR, 'botchan.txt'),
         model_prefix='m',
         vocab_size=1000,
         logstream=open(os.devnull, 'w'),
     )
 
-    with open(os.path.join(data_dir, 'botchan.txt'), 'rb') as is1:
+    with open(os.path.join(SRC_DATA_DIR, 'botchan.txt'), 'rb') as is1:
       spm.SentencePieceTrainer.train(
           sentence_iterator=is1,
           model_prefix='m',
@@ -250,13 +250,13 @@ class TestSentencepieceProcessor(unittest.TestCase):
       )
 
     spm.SentencePieceTrainer.train(
-        input=os.path.join(data_dir, 'botchan.txt'),
+        input=os.path.join(SRC_DATA_DIR, 'botchan.txt'),
         model_writer=os1,
         vocab_size=1000,
         logstream=open(os.devnull, 'w'),
     )
 
-    with open(os.path.join(data_dir, 'botchan.txt'), 'rb') as is2:
+    with open(os.path.join(SRC_DATA_DIR, 'botchan.txt'), 'rb') as is2:
       spm.SentencePieceTrainer.train(
           sentence_iterator=is2,
           model_writer=os2,
@@ -274,7 +274,7 @@ class TestSentencepieceProcessor(unittest.TestCase):
   def test_train_kwargs(self):
     # suppress logging (redirect to /dev/null)
     spm.SentencePieceTrainer.train(
-        input=[os.path.join(data_dir, 'botchan.txt')],
+        input=[os.path.join(SRC_DATA_DIR, 'botchan.txt')],
         model_prefix='m',
         vocab_size=1002,
         user_defined_symbols=['foo', 'bar', ',', ' ', '\t', '\b', '\n', '\r'],
@@ -282,7 +282,7 @@ class TestSentencepieceProcessor(unittest.TestCase):
     )
     sp = spm.SentencePieceProcessor()
     sp.Load('m.model')
-    with open(os.path.join(data_dir, 'botchan.txt'), 'r') as file:
+    with open(os.path.join(SRC_DATA_DIR, 'botchan.txt'), 'r') as file:
       for line in file:
         sp.DecodePieces(sp.EncodeAsPieces(line))
         sp.DecodeIds(sp.EncodeAsIds(line))
@@ -750,7 +750,7 @@ class TestSentencepieceProcessor(unittest.TestCase):
     sp = spm.SentencePieceProcessor(
         model_file=TEST_MODEL_PATH
     )
-    with open(os.path.join(data_dir, 'botchan.txt'), 'r') as file:
+    with open(os.path.join(SRC_DATA_DIR, 'botchan.txt'), 'r') as file:
       texts = file.readlines()
 
     for out_type in [str, int, 'serialized_proto', 'immutable_proto']:
@@ -931,10 +931,11 @@ class TestSentencepieceProcessor(unittest.TestCase):
     )
 
 
-def suite():
-  suite = unittest.TestSuite()
-  suite.addTests(unittest.makeSuite(TestSentencepieceProcessor))
-  return suite
+def load_tests(loader, tests, pattern):
+    tests_dir = os.path.dirname(__file__)
+    package_tests = loader.discover(start_dir=tests_dir)
+    tests.addTests(package_tests)
+    return tests
 
 
 if __name__ == '__main__':
