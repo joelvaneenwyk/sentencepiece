@@ -14,7 +14,7 @@ mkdir -p "${target_src_dir}"
 for i in \
   CMakeLists.txt LICENSE README.md \
   VERSION.txt config.h.in sentencepiece.pc.in \
-  setup.py pyproject.toml MANIFEST.in uv.lock \
+  pyproject.toml MANIFEST.in uv.lock \
   src third_party cmake
 do
   echo "copying ${source_root_dir}/${i} ${target_dir}/${i}"
@@ -26,5 +26,5 @@ cp -f -R ./src/sentencepiece/*.cxx "${target_src_dir}/"
 cp -f -R ./src/sentencepiece/*.i "${target_src_dir}/"
 (
   cd sentencepiece || exit 5
-  uv run python setup.py sdist
+  uv run python -m build --sdist
 )

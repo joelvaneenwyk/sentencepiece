@@ -24,7 +24,7 @@ classifiers = [
 homepage = "https://github.com/google/sentencepiece"
 
 [build-system]
-requires = ["py-build-cmake", "swig"]
+requires = ["py-build-cmake", "swig", "cmake", "ninja", "build", "uv"]
 build-backend = "py_build_cmake.build"
 
 [tool.py-build-cmake.module]
@@ -79,6 +79,14 @@ generator = "Visual Studio 17 2022"
 [tool.py-build-cmake.wheel]
 python_abi = 'abi3'
 abi3_minimum_cpython_version = 38 # Should match Py_LIMITED_API
+
+[tool.py-build-cmake.editable]
+mode = "symlink"
+build_hook = true
+
+[tool.cibuildwheel]
+build-verbosity = 1
+environment = { PY_BUILD_CMAKE_VERBOSE="1" }
 
 [tool.uv]
 managed = true

@@ -23,7 +23,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     permissions:
-      contents: write # svenstaro/upload-release-action 
+      contents: write # svenstaro/upload-release-action
 
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -63,8 +63,8 @@ jobs:
       working-directory: ${{github.workspace}}/python
       run: |
         python -m pip install --require-hashes --no-dependencies -r ../.github/workflows/requirements/base.txt
-        python setup.py build
-        python setup.py bdist_wheel
+        python -m build --sdist
+        python -m build --wheel
         python -m pytest
 
     - name: Upload artifcacts

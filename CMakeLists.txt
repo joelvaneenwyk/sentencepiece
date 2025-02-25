@@ -182,6 +182,7 @@ endif()
 
 add_subdirectory(src)
 add_subdirectory(third_party)
+add_subdirectory(python)
 
 set(CPACK_SOURCE_GENERATOR "TXZ")
 set(CPACK_GENERATOR "7Z")
