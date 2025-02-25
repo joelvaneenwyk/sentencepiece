@@ -82,6 +82,7 @@ python/build/
 /wheelhouse/
 /sentencepiece*/
 /Testing/
+/6.*
 
 .venv/
 .mypy_cache/
