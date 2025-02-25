@@ -67,10 +67,10 @@ jobs:
         python setup.py bdist_wheel
         python -m pytest
 
-    - name: Upload artifcacts
+    - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: artifcacts
+        name: artifacts
         path: ./build/*.7z
 
     - name: Upload Release Assets
