@@ -27,7 +27,10 @@ tasks:
       - '{{.BUILD_DIR}}/bin/sentencepiece{{exeExt}}'
     cmds:
       - cmd: cmake -B "{{.BUILD_DIR}}"
-      - cmd: cmake --build "{{.BUILD_DIR}}" --config Release
+      - cmd: |
+          cmake --build "{{.BUILD_DIR}}" \
+            --config Release \
+            --parallel
 
   sync:
     sources:
@@ -50,7 +53,7 @@ tasks:
 
   ci-wheels:
     deps: [sync]
-    cmds: 
+    cmds:
       - cmd: |
           uv run --no-sync python -m cibuildwheel \
             --output-dir wheelhouse
