@@ -36,6 +36,22 @@ managed = true
 package = true
 link-mode = "copy"
 
+[tool.cibuildwheel]
+test-requires = ["pytest>=6.0"]
+test-command = "pytest {project}/python/test"
+skip = ["pp*", "*-musllinux_*"]
+build-verbosity = 1
+
+[tool.cibuildwheel.windows]
+archs = ["auto", "ARM64"]
+
+[tool.cibuildwheel.macos]
+archs = ["x86_64", "universal2", "arm64"]
+
+[tool.cibuildwheel.linux]
+archs = ["auto", "aarch64"]
+before-build = ['cmake --version', 'git --version', 'ninja --version']
+
 [tool.pytest.ini_options]
 addopts = [
     "-v",
@@ -49,6 +65,7 @@ testpaths = ["python/test"]
 [dependency-groups]
 dev = [
     "build>=1.2.2.post1",
+    "cibuildwheel>=2.22.0",
     "cmake>=3.31.4",
     "coverage>=7.6.12",
     "ipykernel>=6.29.5",

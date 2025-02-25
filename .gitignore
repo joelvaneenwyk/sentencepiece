@@ -78,6 +78,7 @@ third_party/abseil-cpp
 python/sentencepiece/
 python/build/
 
+/wheelhouse/
 /sentencepiece-*/
 /.git/
 
@@ -91,3 +92,4 @@ __pycache__/
 *.pyd
 .coverage
 *.pickle
+*.whl
