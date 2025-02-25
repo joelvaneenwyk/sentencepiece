@@ -85,6 +85,7 @@ python/build/
 .mypy_cache/
 .task/
 .pytest_cache/
+__pycache__/
 .tox/
 
 *.pyd
