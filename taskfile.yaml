@@ -12,6 +12,7 @@ vars:
     - Debug
     - Release
   BUILD_DIR: build/task
+  INSTALL_DIR: build/task_install
 
 tasks:
   default:
@@ -26,11 +27,18 @@ tasks:
     generates:
       - '{{.BUILD_DIR}}/bin/sentencepiece{{exeExt}}'
     cmds:
-      - cmd: cmake -B "{{.BUILD_DIR}}"
+      - cmd: |
+          cmake -B "{{.BUILD_DIR}}" \
+          -DSPM_BUILD_TEST=ON \
+          -DSPM_ENABLE_SHARED=OFF \
+          -DCMAKE_INSTALL_PREFIX="{{.INSTALL_DIR}}"
       - cmd: |
           cmake --build "{{.BUILD_DIR}}" \
             --config Release \
             --parallel
+      - cmd: |
+          cd "{{.BUILD_DIR}}"
+          ctest -C Release --output-on-failure
 
   sync:
     sources:
@@ -50,6 +58,19 @@ tasks:
           uv run --no-sync python setup.py build -v
       - cmd: |
           uv run --no-sync python setup.py build_ext --inplace --verbose
+
+  ci:
+    cmds:
+      - cmd: git add .
+      - cmd: git clean -xfd
+      - task: build
+      - cmd: cpack
+      - cmd: |
+          uv run --no-sync python -m pip install --require-hashes --no-dependencies -r .github/workflows/requirements/base.txt
+          uv run --no-sync python setup.py build
+          uv run --no-sync python setup.py bdist_wheel
+          uv run --no-sync python -m pytest
+      - task: build-python-extension
 
   ci-wheels:
     deps: [sync]

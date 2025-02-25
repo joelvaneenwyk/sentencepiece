@@ -78,9 +78,10 @@ third_party/abseil-cpp
 python/sentencepiece/
 python/build/
 
+/.git/
 /wheelhouse/
 /sentencepiece*/
-/.git/
+/Testing/
 
 .venv/
 .mypy_cache/
