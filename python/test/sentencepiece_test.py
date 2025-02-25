@@ -24,9 +24,12 @@ from collections import defaultdict
 
 TEST_DIR = os.path.dirname(__file__)
 SRC_ROOT_DIR = os.path.normpath(os.path.join(TEST_DIR, os.pardir, os.pardir))
-sys.path.insert(0, os.path.join(SRC_ROOT_DIR, 'python', 'src'))
+try:
+  import sentencepiece as spm  # type: ignore  # noqa: E402
+except ImportError:
+  sys.path.insert(0, os.path.join(SRC_ROOT_DIR, 'python', 'src'))
+  import sentencepiece as spm  # type: ignore  # noqa: E402
 
-import sentencepiece as spm  # type: ignore  # noqa: E402
 
 TEST_MODEL_PATH = os.path.join(TEST_DIR, 'test_model.model')
 TEST_MODEL_JA_PATH = os.path.join(TEST_DIR, 'test_ja_model.model')
