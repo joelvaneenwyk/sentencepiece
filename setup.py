@@ -126,15 +126,15 @@ if os.name == 'nt':
       '-A',
       cmake_arch,
       '-B',
-      'build/setup-py',
+      'build/setup-py-{}'.format(arch),
       '-DSPM_ENABLE_SHARED=OFF',
       '-DSPM_ENABLE_TENSORFLOW_SHARED=ON',
-      '-DCMAKE_INSTALL_PREFIX=build/root',
+      '-DCMAKE_INSTALL_PREFIX=build/root_{}'.format(arch),
   ])
   subprocess.check_call([
       'cmake',
       '--build',
-      'build/setup-py',
+      'build/setup-py-{}'.format(arch),
       '--config',
       'Release',
       '--target',
