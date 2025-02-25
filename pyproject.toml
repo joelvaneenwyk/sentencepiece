@@ -27,6 +27,9 @@ homepage = "https://github.com/google/sentencepiece"
 requires = ["setuptools>=61", "wheel", "build", "cmake", "ninja"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+include-package-data = true
+
 [tool.setuptools.packages.find]
 where = ["python/src/"]
 include = ["python/src/sentencepiece"]
