@@ -56,14 +56,39 @@ archs = ["auto", "aarch64"]
 before-build = ['cmake --version', 'git --version', 'ninja --version']
 
 [tool.pytest.ini_options]
+minversion = "6.0"
 addopts = [
+    "-ra",
+    "--showlocals",
+    "--strict-markers",
+    "--strict-config",
     "-v",
     "-s",
     "--doctest-modules",
     "--cov=sentencepiece",
     "--cov-report=term-missing",
 ]
+xfail_strict = true
+filterwarnings = ["error"]
+log_cli_level = "INFO"
 testpaths = ["python/test"]
+
+[tool.tox]
+requires = ["tox>=4.19"]
+env_list = ["3.13", "3.12", "3.11", "3.10", "3.9", "type"]
+allowlist_externals = ["pytest", "mypy"]
+isolated_build = true
+package = "wheel"
+
+[tool.tox.env_run_base]
+runner = "uv-venv-lock-runner"
+description = "Run test under {base_python}"
+commands = [["pytest"]]
+
+[tool.tox.env.type]
+runner = "uv-venv-lock-runner"
+description = "Run type check on code base"
+commands = [["mypy", "python{/}src"], ["mypy", "python{/}test"]]
 
 [dependency-groups]
 dev = [
@@ -86,19 +111,3 @@ dev = [
     "types-setuptools>=75.8.0.20250210",
     "wheel>=0.45.1",
 ]
-
-[tool.tox]
-requires = ["tox>=4.19"]
-env_list = ["3.13", "3.12", "3.11", "3.10", "3.9", "type"]
-allowlist_externals = ["pytest", "mypy"]
-isolated_build = true
-
-[tool.tox.env_run_base]
-runner = "uv-venv-lock-runner"
-description = "Run test under {base_python}"
-commands = [["pytest"]]
-
-[tool.tox.env.type]
-runner = "uv-venv-lock-runner"
-description = "Run type check on code base"
-commands = [["mypy", "python{/}src"], ["mypy", "python{/}test"]]
