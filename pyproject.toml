@@ -39,7 +39,7 @@ package = true
 link-mode = "copy"
 
 [tool.cibuildwheel]
-test-requires = ["pytest>=6.0"]
+test-requires = ["pytest>=6.0", "pytest-cov"]
 test-command = "pytest {project}/python/test"
 skip = ["pp*", "*-musllinux_*"]
 build-verbosity = 1
