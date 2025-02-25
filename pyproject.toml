@@ -53,24 +53,28 @@ archs = ["x86_64", "universal2", "arm64"]
 
 [tool.cibuildwheel.linux]
 archs = ["auto", "aarch64"]
-before-build = ['cmake --version', 'git --version', 'ninja --version']
 
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = [
-    "-ra",
-    "--showlocals",
-    "--strict-markers",
-    "--strict-config",
-    "-v",
-    "-s",
-    "--doctest-modules",
-    "--cov=sentencepiece",
-    "--cov-report=term-missing",
+    "--cov-report=term-missing",  # Show coverage report with missing lines
+    "--cov=sentencepiece",        # Measure coverage for 'sentencepiece' module
+    "--doctest-modules",          # Run doctests in all .py modules
+    "--showlocals",               # Display local variables in tracebacks
+    "--strict-config",            # Ensure all config values are recognized
+    "--strict-markers",           # Disallow unregistered markers
+    "-ra",                        # Show summary of skipped/xfail tests
+    "-s",                         # Disable output capturing (print statements visible)
+    "-v",                         # Enable verbose output
 ]
+
+# Catch expected failures as soon as they start to pass
 xfail_strict = true
+# Treat all warnings as errors
 filterwarnings = ["error"]
+# Set live logging level to INFO
 log_cli_level = "INFO"
+# Look for tests in the 'python/test' directory
 testpaths = ["python/test"]
 
 [tool.tox]
