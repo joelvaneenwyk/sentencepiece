@@ -65,8 +65,9 @@ dev = [
 
 [tool.tox]
 requires = ["tox>=4.19"]
-env_list = ["3.13", "3.12", "type"]
+env_list = ["3.13", "3.12", "3.11", "3.10", "3.9", "type"]
 allowlist_externals = ["pytest", "mypy"]
+isolated_build = true
 
 [tool.tox.env_run_base]
 runner = "uv-venv-lock-runner"
@@ -75,6 +76,5 @@ commands = [["pytest"]]
 
 [tool.tox.env.type]
 runner = "uv-venv-lock-runner"
-description = "run type check on code base"
-deps = ["mypy==1.11.2", "types-cachetools>=5.5.0.20240820", "types-chardet>=5.0.4.6"]
+description = "Run type check on code base"
 commands = [["mypy", "python{/}src"], ["mypy", "python{/}test"]]
