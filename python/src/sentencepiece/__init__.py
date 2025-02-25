@@ -5,11 +5,12 @@
 # the SWIG interface file instead.
 
 from sys import version_info as _swig_python_version_info
+
 # Import the low-level C/C++ module
-if __package__ or "." in __name__:
-    from . import _sentencepiece
-else:
-    import _sentencepiece
+try:
+    from . import _sentencepiece  # type: ignore
+except ImportError:
+    import _sentencepiece  # type: ignore
 
 try:
     import builtins as __builtin__
