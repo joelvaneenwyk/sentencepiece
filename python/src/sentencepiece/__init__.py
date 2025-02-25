@@ -1138,12 +1138,11 @@ class SentencePieceNormalizer(object):
 _sentencepiece.SentencePieceNormalizer_swigregister(SentencePieceNormalizer)
 
 
-import re
 import csv
-import sys
 import os
-from io import StringIO
-from io import BytesIO
+import re
+import sys
+from io import BytesIO, StringIO
 
 
 def _add_snake_case(classname):
@@ -1197,6 +1196,7 @@ set_random_generator_seed = SetRandomGeneratorSeed
 set_min_log_level = SetMinLogLevel
 
 from ._version import __version__
+
 
 class _LogStream(object):
   def __init__(self, ostream=None):
