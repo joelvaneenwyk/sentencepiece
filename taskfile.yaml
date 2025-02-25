@@ -39,6 +39,9 @@ tasks:
       - cmd: |
           cd "{{.BUILD_DIR}}"
           ctest -C Release --output-on-failure
+      - cmd: |
+          cd "{{.BUILD_DIR}}"
+          cpack
 
   sync:
     sources:
@@ -46,30 +49,66 @@ tasks:
     generates:
       - .venv/pyvenv.cfg
     cmds:
+      - cmd: uv venv --allow-existing
       - cmd: rm -f uv.lock
-      - cmd: uv sync
+      - cmd: uv sync --no-install-project
+
+  requirements:
+    cmds:
+      - task: pip-compile
+        vars: { INPUT: base.in }
+      - task: pip-compile
+        vars: { INPUT: cibuildwheel.in }
+
+  pip-compile:
+    requires:
+      vars: [INPUT]
+    vars:
+      RQ_IN: '{{ .INPUT }}'
+      RQ_OUT: '{{ .INPUT | replace ".in" ".txt" }}'
+    label: pip-compile {{ .RQ_IN }} > {{ .RQ_OUT }}
+    desc: Compile {{ .RQ_IN }} to {{ .RQ_OUT }}
+    silent: true
+    sources:
+      - .github/workflows/requirements/{{.RQ_IN}}
+    generates:
+      - .github/workflows/requirements/{{.RQ_OUT}}
+    cmds:
+      - cmd: | # shell
+          cd .github/workflows/requirements
+          # We use 'pip<23' so that output has relative paths. See:
+          #   https://github.com/jazzband/pip-tools/issues/2131
+          uvx --from "pip-tools" --with "pip<23" --python 3.9 --python-preference only-managed \
+            pip-compile \
+            --config "{{ joinPath .TASKFILE_DIR "pyproject.toml" }}" \
+            --output-file "{{.RQ_OUT}}" \
+            --build-isolation \
+            --allow-unsafe \
+            --generate-hashes \
+            --strip-extras \
+            "{{.RQ_IN}}"
 
   build-python-extension:
+    deps: [requirements]
     aliases: [build-ext, py-ext, py]
     cmds:
-      - cmd: uv venv --allow-existing
-      - cmd: uv pip install wheel setuptools build
       - cmd: |
-          uv run --no-sync python setup.py build -v
+          uv pip install \
+            --require-hashes --no-deps -r .github/workflows/requirements/base.txt
       - cmd: |
-          uv run --no-sync python setup.py build_ext --inplace --verbose
+          uv run --no-sync python ./setup.py build -v
+      - cmd: |
+          uv run --no-sync python ./setup.py build_ext --inplace --verbose
+      - cmd: |
+          uv run --no-sync python ./setup.py bdist_wheel
+      - cmd: |
+          uv run --no-sync python -m pytest
 
   ci:
     cmds:
       - cmd: git add .
       - cmd: git clean -xfd
       - task: build
-      - cmd: cpack
-      - cmd: |
-          uv run --no-sync python -m pip install --require-hashes --no-dependencies -r .github/workflows/requirements/base.txt
-          uv run --no-sync python setup.py build
-          uv run --no-sync python setup.py bdist_wheel
-          uv run --no-sync python -m pytest
       - task: build-python-extension
 
   ci-wheels:
