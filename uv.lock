@@ -497,6 +497,15 @@ wheels = [
 ]
 
 [[package]]
+name = "isort"
+version = "6.0.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/1c/28/b382d1656ac0ee4cef4bf579b13f9c6c813bff8a5cb5996669592c8c75fa/isort-6.0.0.tar.gz", hash = "sha256:75d9d8a1438a9432a7d7b54f2d3b45cad9a4a0fdba43617d9873379704a8bdf1", size = 828356 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/76/c7/d6017f09ae5b1206fbe531f7af3b6dac1f67aedcbd2e79f3b386c27955d6/isort-6.0.0-py3-none-any.whl", hash = "sha256:567954102bb47bb12e0fae62606570faacddd441e45683968c8d1734fb1af892", size = 94053 },
+]
+
+[[package]]
 name = "jedi"
 version = "0.19.2"
 source = { registry = "https://pypi.org/simple" }
@@ -978,6 +987,7 @@ dev = [
     { name = "coverage" },
     { name = "ipykernel" },
     { name = "ipywidgets" },
+    { name = "isort" },
     { name = "mypy" },
     { name = "ninja" },
     { name = "pip" },
@@ -1002,6 +1012,7 @@ dev = [
     { name = "coverage", specifier = ">=7.6.12" },
     { name = "ipykernel", specifier = ">=6.29.5" },
     { name = "ipywidgets", specifier = ">=8.1.5" },
+    { name = "isort", specifier = ">=6.0.0" },
     { name = "mypy", specifier = ">=1.15.0" },
     { name = "ninja", specifier = ">=1.11.1.3" },
     { name = "pip", specifier = ">=25.0.1" },
