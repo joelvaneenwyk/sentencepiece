@@ -180,7 +180,7 @@ trainer_interface.cc(619) LOG(INFO) Saving vocabs: m.vocab
 
 Sentencepiece trainer can receive any iterable object to feed training sentences. You can also pass a file object (instance with write() method) to emit the output model to any devices. These features are useful to run sentencepiece on environment that have limited access to the local file system (e.g., Google colab.)
 
-```
+```python
 import urllib.request
 import io
 import sentencepiece as spm
