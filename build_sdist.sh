@@ -3,7 +3,7 @@
 target_dir="$(dirname "$0")/sentencepiece"
 export target_dir
 
-source_root_dir="$(dirname "$0")/.."
+source_root_dir="$(dirname "$0")"
 export source_root_dir
 
 export target_src_dir="${target_dir}/python/src/sentencepiece"
