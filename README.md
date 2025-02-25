@@ -1,13 +1,7 @@
 # SentencePiece
 
-[![Build C++](https://github.com/google/sentencepiece/actions/workflows/cmake.yml/badge.svg)](https://github.com/google/sentencepiece/actions/workflows/cmake.yml)
-[![Build Wheels](https://github.com/google/sentencepiece/actions/workflows/wheel.yml/badge.svg)](https://github.com/google/sentencepiece/actions/workflows/wheel.yml)
-[![GitHub Issues](https://img.shields.io/github/issues/google/sentencepiece.svg)](https://github.com/google/sentencepiece/issues)
-[![PyPI version](https://badge.fury.io/py/sentencepiece.svg)](https://badge.fury.io/py/sentencepiece)
-[![PyPi downloads](https://img.shields.io/pypi/dm/sentencepiece?style=flat-square&logo=pypi&logoColor=white)](https://pypi.org/project/sentencepiece/)
-[![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![License](https://img.shields.io/badge/License-Apache%202.0-brightgreen.svg)](https://opensource.org/licenses/Apache-2.0)
-[![SLSA 3](https://slsa.dev/images/gh-badge-level3.svg)](https://slsa.dev)
+> [!WARNING]
+> This is a fork and not the official version. Use at your own risk.
 
 SentencePiece is an unsupervised text tokenizer and detokenizer mainly for
 Neural Network-based text generation systems where the vocabulary size
@@ -92,8 +86,8 @@ Then, this text is segmented into small pieces, for example:
 
 Since the whitespace is preserved in the segmented text, we can detokenize the text without any ambiguities.
 
-```
-  detokenized = ''.join(pieces).replace('▁', ' ')
+```python
+detokenized = ''.join(pieces).replace('▁', ' ')
 ```
 
 This feature makes it possible to perform detokenization without relying on language-specific resources.
@@ -133,7 +127,7 @@ To enable subword regularization, you would like to integrate SentencePiece libr
 SentencePiece provides Python wrapper that supports both SentencePiece training and segmentation.
 You can install Python binary package of SentencePiece with.
 
-```
+```sh
 pip install sentencepiece
 ```
 
@@ -149,21 +143,21 @@ The following tools and libraries are required to build SentencePiece:
 
 On Ubuntu, the build tools can be installed with apt-get:
 
-```
-% sudo apt-get install cmake build-essential pkg-config libgoogle-perftools-dev
+```sh
+sudo apt-get install cmake build-essential pkg-config libgoogle-perftools-dev
 ```
 
 Then, you can build and install command line tools as follows.
 
-```
-% git clone https://github.com/google/sentencepiece.git
-% cd sentencepiece
-% mkdir build
-% cd build
-% cmake ..
-% make -j $(nproc)
-% sudo make install
-% sudo ldconfig -v
+```sh
+git clone https://github.com/google/sentencepiece.git
+cd sentencepiece
+mkdir build
+cd build
+cmake ..
+make -j $(nproc)
+sudo make install
+sudo ldconfig -v
 ```
 
 On OSX/macOS, replace the last command with `sudo update_dyld_shared_cache`
@@ -172,11 +166,13 @@ On OSX/macOS, replace the last command with `sudo update_dyld_shared_cache`
 
 You can download and install sentencepiece using the [vcpkg](https://github.com/Microsoft/vcpkg) dependency manager:
 
-    git clone https://github.com/Microsoft/vcpkg.git
-    cd vcpkg
-    ./bootstrap-vcpkg.sh
-    ./vcpkg integrate install
-    ./vcpkg install sentencepiece
+```sh
+git clone https://github.com/Microsoft/vcpkg.git
+cd vcpkg
+./bootstrap-vcpkg.sh
+./vcpkg integrate install
+./vcpkg install sentencepiece
+```
 
 The sentencepiece port in vcpkg is kept up to date by Microsoft team members and community contributors. If the version is out of date, please [create an issue or pull request](https://github.com/Microsoft/vcpkg) on the vcpkg repository.
 
@@ -189,7 +185,7 @@ We generate [SLSA3 signatures](slsa.dev) using the OpenSSF's [slsa-framework/sls
 2. Download the provenance file `attestation.intoto.jsonl` from the [GitHub releases page](https://github.com/google/sentencepiece/releases/latest).
 3. Run the verifier:
 
-```shell
+```sh
 slsa-verifier -artifact-path <the-wheel> -provenance attestation.intoto.jsonl -source github.com/google/sentencepiece -tag <the-tag>
 ```
 
@@ -199,13 +195,14 @@ pip install wheel_file.whl
 
 ### Train SentencePiece Model
 
-```
-% spm_train --input=<input> --model_prefix=<model_name> --vocab_size=8000 --character_coverage=1.0 --model_type=<type>
+```sh
+spm_train --input=<input> --model_prefix=<model_name> --vocab_size=8000 --character_coverage=1.0 --model_type=<type>
 ```
 
-* `--input`: one-sentence-per-line **raw** corpus file. No need to run
+- `--input`: one-sentence-per-line **raw** corpus file. No need to run
   tokenizer, normalizer or preprocessor. By default, SentencePiece normalizes
   the input with Unicode NFKC. You can pass a comma-separated list of files.
+
 - `--model_prefix`: output model name prefix. `<model_name>.model` and `<model_name>.vocab` are generated.
 - `--vocab_size`: vocabulary size, e.g., 8000, 16000, or 32000
 - `--character_coverage`: amount of characters covered by the model, good defaults are: `0.9995` for languages with rich character set like Japanese or Chinese and `1.0` for other languages with small character set.
@@ -215,42 +212,42 @@ Use `--help` flag to display all parameters for training, or see [here](doc/opti
 
 ### Encode raw text into sentence pieces/ids
 
-```
-% spm_encode --model=<model_file> --output_format=piece < input > output
-% spm_encode --model=<model_file> --output_format=id < input > output
+```sh
+spm_encode --model=<model_file> --output_format=piece < input > output
+spm_encode --model=<model_file> --output_format=id < input > output
 ```
 
 Use `--extra_options` flag to insert the BOS/EOS markers or reverse the input sequence.
 
-```
-% spm_encode --extra_options=eos (add </s> only)
-% spm_encode --extra_options=bos:eos (add <s> and </s>)
-% spm_encode --extra_options=reverse:bos:eos (reverse input and add <s> and </s>)
+```sh
+spm_encode --extra_options=eos (add </s> only)
+spm_encode --extra_options=bos:eos (add <s> and </s>)
+spm_encode --extra_options=reverse:bos:eos (reverse input and add <s> and </s>)
 ```
 
 SentencePiece supports nbest segmentation and segmentation sampling with `--output_format=(nbest|sample)_(piece|id)` flags.
 
-```
-% spm_encode --model=<model_file> --output_format=sample_piece --nbest_size=-1 --alpha=0.5 < input > output
-% spm_encode --model=<model_file> --output_format=nbest_id --nbest_size=10 < input > output
+```sh
+spm_encode --model=<model_file> --output_format=sample_piece --nbest_size=-1 --alpha=0.5 < input > output
+spm_encode --model=<model_file> --output_format=nbest_id --nbest_size=10 < input > output
 ```
 
 ### Decode sentence pieces/ids into raw text
 
-```
-% spm_decode --model=<model_file> --input_format=piece < input > output
-% spm_decode --model=<model_file> --input_format=id < input > output
+```sh
+spm_decode --model=<model_file> --input_format=piece < input > output
+spm_decode --model=<model_file> --input_format=id < input > output
 ```
 
 Use `--extra_options` flag to decode the text in reverse order.
 
-```
-% spm_decode --extra_options=reverse < input > output
+```sh
+spm_decode --extra_options=reverse < input > output
 ```
 
 ### End-to-End Example
 
-```
+```sh
 % spm_train --input=data/botchan.txt --model_prefix=m --vocab_size=1000
 unigram_model_trainer.cc(494) LOG(INFO) Starts training with :
 input: "../data/botchan.txt"
@@ -273,18 +270,18 @@ You can find that the original input sentence is restored from the vocabulary id
 
 ### Export vocabulary list
 
-```
+```sh
 % spm_export_vocab --model=<model_file> --output=<output file>
 ```
 
-```<output file>``` stores a list of vocabulary and emission log probabilities. The vocabulary id corresponds to the line number in this file.
+`<output file>` stores a list of vocabulary and emission log probabilities. The vocabulary id corresponds to the line number in this file.
 
 ### Redefine special meta tokens
 
   By default, SentencePiece uses Unknown (&lt;unk&gt;), BOS (&lt;s&gt;) and EOS (&lt;/s&gt;) tokens which have the ids of 0, 1, and 2 respectively. We can redefine this mapping in the training phase as follows.
 
-```
-% spm_train --bos_id=0 --eos_id=1 --unk_id=5 --input=... --model_prefix=... --character_coverage=...
+```sh
+spm_train --bos_id=0 --eos_id=1 --unk_id=5 --input=... --model_prefix=... --character_coverage=...
 ```
 
 When setting -1 id e.g., ```bos_id=-1```, this special token is disabled. Note that the unknown id cannot be disabled.  We can define an id for padding (&lt;pad&gt;) as ```--pad_id=3```.  
@@ -297,20 +294,20 @@ If you want to assign another special tokens, please see [Use custom symbols](do
 
 The usage is basically the same as that of ```subword-nmt```. Assuming that L1 and L2 are the two languages (source/target languages), train the shared spm model, and get resulting vocabulary for each:
 
-```
-% cat {train_file}.L1 {train_file}.L2 | shuffle > train
-% spm_train --input=train --model_prefix=spm --vocab_size=8000 --character_coverage=0.9995
-% spm_encode --model=spm.model --generate_vocabulary < {train_file}.L1 > {vocab_file}.L1
-% spm_encode --model=spm.model --generate_vocabulary < {train_file}.L2 > {vocab_file}.L2
+```sh
+cat {train_file}.L1 {train_file}.L2 | shuffle > train
+spm_train --input=train --model_prefix=spm --vocab_size=8000 --character_coverage=0.9995
+spm_encode --model=spm.model --generate_vocabulary < {train_file}.L1 > {vocab_file}.L1
+spm_encode --model=spm.model --generate_vocabulary < {train_file}.L2 > {vocab_file}.L2
 ```
 
 ```shuffle``` command is used just in case because ```spm_train``` loads the first 10M lines of corpus by default.
 
 Then segment train/test corpus with ```--vocabulary``` option
 
-```
-% spm_encode --model=spm.model --vocabulary={vocab_file}.L1 --vocabulary_threshold=50 < {test_file}.L1 > {test_file}.seg.L1
-% spm_encode --model=spm.model --vocabulary={vocab_file}.L2 --vocabulary_threshold=50 < {test_file}.L2 > {test_file}.seg.L2
+```sh
+spm_encode --model=spm.model --vocabulary={vocab_file}.L1 --vocabulary_threshold=50 < {test_file}.L1 > {test_file}.seg.L1
+spm_encode --model=spm.model --vocabulary={vocab_file}.L2 --vocabulary_threshold=50 < {test_file}.L2 > {test_file}.seg.L2
 ```
 
 ## Advanced topics
