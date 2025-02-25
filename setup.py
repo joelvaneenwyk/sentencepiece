@@ -24,8 +24,8 @@ import platform
 import subprocess
 import sys
 
-from setuptools import Extension, setup  # type: ignore
-from setuptools.command.build_ext import build_ext as ext  # type: ignore
+from setuptools import Extension, setup  # type: ignore[import]
+from setuptools.command.build_ext import build_ext  # type: ignore[import]
 
 ROOT = os.path.abspath(os.path.dirname(__file__))
 PY_SRC_DIR = os.path.join(ROOT, 'python')
@@ -74,7 +74,7 @@ def get_cflags_and_libs(root):
   return cflags, libs
 
 
-class build_ext(ext):
+class cmake_build_ext(build_ext):
   """Override build_extension to run cmake."""
 
   def build_extension(self, ext):
@@ -101,7 +101,7 @@ class build_ext(ext):
     print('## libs={}'.format(' '.join(libs)))
     ext.extra_compile_args = cflags
     ext.extra_link_args = libs
-    ext.build_extension(self, ext)
+    build_ext.build_extension(self, ext)
 
 
 def get_win_arch():
@@ -196,7 +196,7 @@ else:
       'sentencepiece._sentencepiece',
       sources=['python/src/sentencepiece/sentencepiece_wrap.cxx'],
   )
-  cmdclass = {'build_ext': build_ext}
+  cmdclass = {'build_ext': cmake_build_ext}
 
 setup(
     version=PACKAGE_VERSION,  # type: ignore
