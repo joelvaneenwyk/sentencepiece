@@ -79,10 +79,13 @@ python/sentencepiece
 
 /sentencepiece-*/
 /.git/
+
 .venv/
 .mypy_cache/
 .task/
 .pytest_cache/
+.tox/
+
 *.pyd
 .coverage
 *.pickle

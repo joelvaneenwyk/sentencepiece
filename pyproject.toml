@@ -62,6 +62,7 @@ dev = [
 [tool.tox]
 requires = ["tox>=4.19"]
 env_list = ["3.13", "3.12", "type"]
+allowlist_externals = ["pytest", "mypy"]
 
 [tool.tox.env_run_base]
 description = "Run test under {base_python}"
