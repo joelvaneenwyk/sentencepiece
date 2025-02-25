@@ -54,6 +54,7 @@ tasks:
       - cmd: uv sync --no-install-project
 
   requirements:
+    aliases: [r, pc]
     cmds:
       - task: pip-compile
         vars: { INPUT: base.in }
@@ -66,6 +67,10 @@ tasks:
     vars:
       RQ_IN: '{{ .INPUT }}'
       RQ_OUT: '{{ .INPUT | replace ".in" ".txt" }}'
+      RQ_DIR: .github/workflows/requirements
+    env:
+      RQ_IN_PATH: '{{ joinPath .RQ_DIR .RQ_IN | toSlash }}'
+      RQ_OUT_PATH: '{{ joinPath .RQ_DIR .RQ_OUT | toSlash }}'
     label: pip-compile {{ .RQ_IN }} > {{ .RQ_OUT }}
     desc: Compile {{ .RQ_IN }} to {{ .RQ_OUT }}
     silent: true
@@ -74,19 +79,14 @@ tasks:
     generates:
       - .github/workflows/requirements/{{.RQ_OUT}}
     cmds:
+      # We use 'pip<23' so that output has relative paths. See:
+      #   https://github.com/jazzband/pip-tools/issues/2131
       - cmd: | # shell
-          cd .github/workflows/requirements
-          # We use 'pip<23' so that output has relative paths. See:
-          #   https://github.com/jazzband/pip-tools/issues/2131
           uvx --from "pip-tools" --with "pip<23" --python 3.9 --python-preference only-managed \
             pip-compile \
-            --config "{{ joinPath .TASKFILE_DIR "pyproject.toml" }}" \
-            --output-file "{{.RQ_OUT}}" \
-            --build-isolation \
-            --allow-unsafe \
-            --generate-hashes \
-            --strip-extras \
-            "{{.RQ_IN}}"
+            --config pyproject.toml \
+            --output-file $RQ_OUT_PATH \
+            $RQ_IN_PATH
 
   build-python-extension:
     deps: [requirements]
