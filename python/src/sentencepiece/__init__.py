@@ -15,7 +15,7 @@ except ImportError:
 try:
     import builtins as __builtin__
 except ImportError:
-    import __builtin__
+    import __builtin__  # type: ignore
 
 def _swig_repr(self):
     try:
@@ -270,9 +270,6 @@ class SentencePieceProcessor(object):
 
     def LoadVocabulary(self, filename, threshold):
         return _sentencepiece.SentencePieceProcessor_LoadVocabulary(self, filename, threshold)
-
-    def CalculateEntropy(self, *args):
-        return _sentencepiece.SentencePieceProcessor_CalculateEntropy(self, *args)
 
     def GetPieceSize(self):
         return _sentencepiece.SentencePieceProcessor_GetPieceSize(self)
@@ -892,7 +889,6 @@ class SentencePieceProcessor(object):
     def DecodeIdsAsImmutableProto(self, input, out_type='immutable_proto', **kwargs):
       return self.Decode(input=input, out_type=out_type, **kwargs)
 
-
     def CalculateEntropy(self, input, alpha, num_threads=None):
       """Calculate sentence entropy"""
       if type(input) is list:
@@ -901,9 +897,7 @@ class SentencePieceProcessor(object):
         if num_threads is None or type(num_threads) is not int:
           raise RuntimeError('num_threads must be int')
         return self._CalculateEntropyBatch(input, alpha, num_threads)
-
       return self._CalculateEntropy(input, alpha)
-
 
     def Normalize(self, input, with_offsets=None):
       def _normalize(text):
@@ -1187,8 +1181,8 @@ _sentencepiece_normalizer_init_native = SentencePieceNormalizer.__init__
 setattr(SentencePieceProcessor, '__init__', SentencePieceProcessor.Init)
 setattr(SentencePieceNormalizer, '__init__', SentencePieceNormalizer.Init)
 
-SentencePieceProcessor.Tokenize = SentencePieceProcessor.Encode
-SentencePieceProcessor.Detokenize = SentencePieceProcessor.Decode
+SentencePieceProcessor.Tokenize = SentencePieceProcessor.Encode  # type: ignore
+SentencePieceProcessor.Detokenize = SentencePieceProcessor.Decode  # type: ignore
 
 for m in [
     'PieceToId', 'IdToPiece', 'GetScore', 'IsUnknown', 'IsControl', 'IsUnused',
@@ -1221,5 +1215,3 @@ class _LogStream(object):
       os.dup2(self.orig_stream_dup, self.orig_stream_fileno)
       os.close(self.orig_stream_dup)
       self.ostream.close()
-
-

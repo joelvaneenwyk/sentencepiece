@@ -24,7 +24,7 @@ import io
 import os
 import pickle
 import unittest
-import sentencepiece as spm
+import sentencepiece as spm  # type: ignore
 
 print('VERSION={}'.format(spm.__version__))
 

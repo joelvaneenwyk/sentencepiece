@@ -21,10 +21,10 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'H\003'
-  _SENTENCEPIECETEXT._serialized_start=39
-  _SENTENCEPIECETEXT._serialized_end=262
-  _SENTENCEPIECETEXT_SENTENCEPIECE._serialized_start=153
-  _SENTENCEPIECETEXT_SENTENCEPIECE._serialized_end=251
-  _NBESTSENTENCEPIECETEXT._serialized_start=264
-  _NBESTSENTENCEPIECETEXT._serialized_end=338
+  _SENTENCEPIECETEXT._serialized_start=39  # type: ignore
+  _SENTENCEPIECETEXT._serialized_end=262  # type: ignore
+  _SENTENCEPIECETEXT_SENTENCEPIECE._serialized_start=153  # type: ignore
+  _SENTENCEPIECETEXT_SENTENCEPIECE._serialized_end=251  # type: ignore
+  _NBESTSENTENCEPIECETEXT._serialized_start=264  # type: ignore
+  _NBESTSENTENCEPIECETEXT._serialized_end=338  # type: ignore
 # @@protoc_insertion_point(module_scope)
