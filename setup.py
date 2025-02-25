@@ -20,11 +20,12 @@
 # limitations under the License.!
 
 import os
+import platform
 import subprocess
 import sys
-import platform
+
 from setuptools import Extension, setup  # type: ignore
-from setuptools.command.build_ext import build_ext as _build_ext  # type: ignore
+from setuptools.command.build_ext import build_ext as ext  # type: ignore
 
 ROOT = os.path.abspath(os.path.dirname(__file__))
 PY_SRC_DIR = os.path.join(ROOT, 'python')
@@ -73,7 +74,7 @@ def get_cflags_and_libs(root):
   return cflags, libs
 
 
-class build_ext(_build_ext):
+class build_ext(ext):
   """Override build_extension to run cmake."""
 
   def build_extension(self, ext):
@@ -84,7 +85,7 @@ class build_ext(_build_ext):
         cflags = cflags + run_pkg_config('cflags')
         libs = run_pkg_config('libs')
       else:
-        subprocess.check_call(['./build_bundled.sh', __version__])
+        subprocess.check_call(['./build_bundled.sh', PACKAGE_VERSION])
         cflags, libs = get_cflags_and_libs('./build/root')
 
     # Fix compile on some versions of Mac OSX
@@ -100,7 +101,7 @@ class build_ext(_build_ext):
     print('## libs={}'.format(' '.join(libs)))
     ext.extra_compile_args = cflags
     ext.extra_link_args = libs
-    _build_ext.build_extension(self, ext)
+    ext.build_extension(self, ext)
 
 
 def get_win_arch():
@@ -164,8 +165,7 @@ if os.name == 'nt':
       'Release',
       '--target',
       'install',
-      '--parallel',
-      '8',
+      '--parallel'
   ])
 
   cflags = ['/std:c++17', '/I{}/include'.format(install_dir)]
