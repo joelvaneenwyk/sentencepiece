@@ -42,11 +42,19 @@ tasks:
       - task: tox
       - task: wheelhouse
 
+  python:
+    cmds:
+      - for: ["3.9", "3.10", "3.11", "3.12"]
+        cmd: |
+          if pyenv --version >nul; then
+            pyenv install --skip-existing {{ .ITEM }}
+          fi
+
   cibuildwheel:
-    deps: [sync]
+    deps: [sync, python]
     cmds:
       - cmd: |
-          uvx --from git+https://github.com/pypa/cibuildwheel --python 3.12 --python-preference only-managed \
+          uvx --from git+https://github.com/pypa/cibuildwheel --python-preference only-managed \
             cibuildwheel --output-dir wheelhouse
 
   tox:
