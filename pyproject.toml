@@ -40,6 +40,7 @@ include = ["python/src/sentencepiece"]
 [tool.uv]
 managed = true
 package = true
+config-settings = { editable_mode = "compat" }
 link-mode = "copy"
 concurrent-installs = 4
 python-downloads = "automatic"
