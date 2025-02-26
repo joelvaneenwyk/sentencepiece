@@ -18,6 +18,7 @@ jobs:
       digests-macos: ${{ steps.hash-macos.outputs.digests }}
       digests-windows: ${{ steps.hash-windows.outputs.digests }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-11]
     runs-on: ${{ matrix.os }}
