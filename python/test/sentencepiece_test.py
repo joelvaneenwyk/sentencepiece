@@ -27,11 +27,7 @@ sys.path.insert(0, 'src')
 
 TEST_DIR = os.path.dirname(__file__)
 SRC_ROOT_DIR = os.path.normpath(os.path.join(TEST_DIR, os.pardir, os.pardir))
-try:
-  import sentencepiece as spm  # type: ignore  # noqa: E402
-except ImportError:
-  sys.path.insert(0, os.path.join(SRC_ROOT_DIR, 'python', 'src'))
-  import sentencepiece as spm  # type: ignore  # noqa: E402
+import sentencepiece as spm  # type: ignore  # noqa: E402
 
 
 TEST_MODEL_PATH = os.path.join(TEST_DIR, 'test_model.model')
