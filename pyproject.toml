@@ -1,3 +1,7 @@
+# cspell:ignore Taku,SentencePiece,setuptools,cibuildwheel
+# cspell:ignore pytest,minversion,doctest,doctests,xfail,addopts,showlocals,filterwarnings,testpaths
+# cspell:ignore musllinux,archs
+# cspell:ignore venv,mypy,cython,ipykernel,ipywidgets,isort
 [project]
 name = "sentencepiece"
 dynamic = ["version"]
@@ -23,7 +27,7 @@ classifiers = [
 homepage = "https://github.com/google/sentencepiece"
 
 [build-system]
-requires = ["setuptools>=61", "wheel", "build", "cmake", "ninja"]
+requires = ["setuptools>=61", "wheel", "build[uv]", "cmake", "ninja"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
@@ -37,11 +41,20 @@ include = ["python/src/sentencepiece"]
 managed = true
 package = true
 link-mode = "copy"
+concurrent-installs = 4
+python-downloads = "automatic"
+python-preference = "managed"
+
+[tool.uv.sources]
+cibuildwheel = { git = "https://github.com/pypa/cibuildwheel" }
 
 [tool.cibuildwheel]
-test-requires = ["pytest>=6.0", "pytest-cov"]
+environment = { UV_PYTHON_PREFERENCE = "managed", UV_PYTHON_DOWNLOADS = "automatic" }
+before-build = ["uv pip install setuptools wheel build[uv]", "uv sync"]
+build-frontend = { name = "build[uv]", args = ["--installer=uv"] }
+test-requires = ["pytest", "pytest-cov"]
 test-command = "pytest {project}/python/test"
-skip = ["pp*", "*-musllinux_*"]
+skip = ["pp*", "cp35-*", "cp36-*", "cp37-*", "cp38-*", "*-musllinux_*"]
 build-verbosity = 1
 
 [tool.cibuildwheel.windows]
@@ -62,15 +75,15 @@ strip_extras = true
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = [
-    "--cov-report=term-missing",  # Show coverage report with missing lines
-    "--cov=sentencepiece",        # Measure coverage for 'sentencepiece' module
-    "--doctest-modules",          # Run doctests in all .py modules
-    "--showlocals",               # Display local variables in tracebacks
-    "--strict-config",            # Ensure all config values are recognized
-    "--strict-markers",           # Disallow unregistered markers
-    "-ra",                        # Show summary of skipped/xfail tests
-    "-s",                         # Disable output capturing (print statements visible)
-    "-v",                         # Enable verbose output
+    "--cov-report=term-missing", # Show coverage report with missing lines
+    "--cov=sentencepiece",       # Measure coverage for 'sentencepiece' module
+    "--doctest-modules",         # Run doctests in all .py modules
+    "--showlocals",              # Display local variables in tracebacks
+    "--strict-config",           # Ensure all config values are recognized
+    "--strict-markers",          # Disallow unregistered markers
+    "-ra",                       # Show summary of skipped/xfail tests
+    "-s",                        # Disable output capturing (print statements visible)
+    "-v",                        # Enable verbose output
 ]
 
 # Catch expected failures as soon as they start to pass
@@ -101,23 +114,25 @@ commands = [["mypy", "python{/}src"], ["mypy", "python{/}test"]]
 
 [dependency-groups]
 dev = [
-    "build>=1.2.2.post1",
-    "cibuildwheel>=2.22.0",
-    "cmake>=3.31.4",
+    "build[uv]",
+    "cibuildwheel[uv]; python_version >= '3.11'",
+    "cmake",
     "coverage>=7.6.12",
+    "cython",
     "ipykernel>=6.29.5",
     "ipywidgets>=8.1.5",
     "isort>=6.0.0",
     "mypy>=1.15.0",
     "ninja>=1.11.1.3",
     "pip>=25.0.1",
-    "pytest>=8.3.4",
     "pytest-cov>=6.0.0",
+    "pytest>=8.3.4",
     "ruff>=0.9.6",
     "setuptools>=75.8.0",
-    "tox>=4.24.1",
     "tox-uv>=1.25.0",
+    "tox>=4.24.1",
     "types-protobuf>=5.29.1.20250208",
     "types-setuptools>=75.8.0.20250210",
+    "uv>=0.6.3",
     "wheel>=0.45.1",
 ]
