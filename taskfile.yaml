@@ -22,6 +22,7 @@ tasks:
       - task: test
 
   build:
+    deps: [python]
     desc: Build Python extension
     vars:
       PACKAGE_VERSION:
@@ -32,10 +33,10 @@ tasks:
     generates:
       - dist/sentencepiece-{{.PACKAGE_VERSION}}*.whl
       - dist/sentencepiece-{{.PACKAGE_VERSION}}.tar.gz
-    silent: true
+    silent: false
     cmds:
       - cmd: |
-          uv build {{.CLI_VERBOSE | ternary "-v" ""}}
+          uv build -v
 
   buildext:
     deps: [requirements]
@@ -61,7 +62,7 @@ tasks:
 
   test:
     deps: [buildext]
-    silent: true
+    silent: false
     cmds:
       # Direct call to make sure that works
       - cmd: |
@@ -115,13 +116,21 @@ tasks:
       - for: ["3.9", "3.10", "3.11", "3.12", "3.13"]
         task: python:install
         vars: { VERSION: '{{ .ITEM }}' }
+    cmds:
+      - cmd: |
+          if dpkg-query -W -f='${Status}' python3-dev 2>/dev/null | grep -q "install ok installed"; then
+            echo "python3-dev is installed."
+          else
+            sudo apt-get install -y --no-install-recommends \
+              python3-dev
+          fi
+        platforms: [linux]
 
   python:install:
     internal: true
     requires:
       vars: [VERSION]
     desc: Install Python {{.VERSION}}
-    silent: true
     cmds:
       - cmd: |
           if pyenv --version >/dev/null 2>&1; then
@@ -130,10 +139,37 @@ tasks:
             echo "Skipped Python {{.VERSION}} install. 'pyenv' not available."
           fi
 
+  docker:
+    aliases: [d]
+    status:
+      - docker --version
+    cmds:
+      - cmd: |
+          # Add Docker's official GPG key:
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            ca-certificates curl
+          sudo install -m 0755 -d /etc/apt/keyrings
+          sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+          sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+          # Add the repository to Apt sources:
+          echo \
+            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+            $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+            sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+          sudo apt-get update
+      - cmd: |
+          sudo apt-get install --yes --no-install-recommends \
+            docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+      - cmd: |
+          sudo docker run hello-world
+
   cibuildwheel:
     desc: Build wheels using `cibuildwheel`
     aliases: [wheelhouse, wheels, wh, cibw]
-    deps: [sync, python]
+    deps: [docker, sync, python]
     cmds:
       - cmd: |
           uvx --from git+https://github.com/pypa/cibuildwheel --python-preference only-managed \
