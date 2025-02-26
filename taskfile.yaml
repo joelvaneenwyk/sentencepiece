@@ -17,10 +17,12 @@ vars:
 
 tasks:
   default:
+    desc: Build and run tests
     cmds:
       - task: test
 
   build:
+    desc: Build Python extension
     vars:
       PACKAGE_VERSION:
         sh: | # shell
@@ -35,27 +37,102 @@ tasks:
       - cmd: |
           uv build {{.CLI_VERBOSE | ternary "-v" ""}}
 
+  buildext:
+    deps: [requirements]
+    aliases: [build-python-extension, pyd, pyext, build-ext, py-ext]
+    sources:
+      - python/**/*.cxx
+      - python/**/*.i
+      - src/*.cc
+      - src/*.h
+      - src/*.proto
+    generates:
+      - python/src/sentencepiece/_sentencepiece*.pyd
+    silent: false
+    cmds:
+      - cmd: |
+          uv pip install \
+            --require-hashes --no-deps -r .github/workflows/requirements/base.txt
+      - cmd: |
+          uv run --no-sync python \
+            ./setup.py build_ext \
+            --inplace \
+            {{.CLI_VERBOSE | ternary "--verbose" ""}}
+
   test:
-    deps: [build]
+    deps: [buildext]
+    silent: true
+    cmds:
+      # Direct call to make sure that works
+      - cmd: |
+          uv run python ./python/test/sentencepiece_test.py
+      # Call through 'pytest' which should also work
+      - cmd: |
+          uv run --no-sync python -m pytest
+
+  bdist_wheel:
+    aliases: [bdist, wheel, w]
+    deps: [buildext]
+    cmds:
+      - cmd: |
+          uv run --no-sync python -m build --wheel
+
+  ci:
+    desc: Run exhaustive series of tests
+    cmds:
+      - cmd: git add .
+      - cmd: git clean -xfd
+      - task: tox
+      - task: wheelhouse
+      - task: build
+      - task: build-python-extension
+
+  sync:
+    desc: Sync Python dependencies
+    aliases: [s]
+    sources:
+      - pyproject.toml
+    generates:
+      - .venv/pyvenv.cfg
+    silent: true
+    cmds:
+      - cmd: uv venv --allow-existing
+      - cmd: |
+          if {{.CLI_FORCE}}; then
+            rm -f uv.lock
+          fi
+      - cmd: |
+          uv sync \
+            --python-preference only-managed \
+            --no-install-project \
+            {{.CLI_VERBOSE | ternary "--verbose" "--quiet"}}
+      - cmd: echo "Python dependencies synced."
+
+  python:
+    desc: Install Python dependencies
+    aliases: [py]
+    deps:
+      - for: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        task: python:install
+        vars: { VERSION: '{{ .ITEM }}' }
+
+  python:install:
+    internal: true
+    requires:
+      vars: [VERSION]
+    desc: Install Python {{.VERSION}}
     silent: true
     cmds:
       - cmd: |
-          uv run --no-sync python ./python/test/sentencepiece_test.py
-
-  all:
-    cmds:
-      - task: tox
-      - task: wheelhouse
-
-  python:
-    cmds:
-      - for: ["3.9", "3.10", "3.11", "3.12"]
-        cmd: |
           if pyenv --version >/dev/null 2>&1; then
-            pyenv install --skip-existing {{ .ITEM }}
+            pyenv install --skip-existing {{.VERSION}}
+          else
+            echo "Skipped Python {{.VERSION}} install. 'pyenv' not available."
           fi
 
   cibuildwheel:
+    desc: Build wheels using `cibuildwheel`
+    aliases: [wheelhouse, wheels, wh, cibw]
     deps: [sync, python]
     cmds:
       - cmd: |
@@ -63,23 +140,44 @@ tasks:
             cibuildwheel --output-dir wheelhouse
 
   tox:
+    desc: Run tox tests
     cmds:
       - cmd: |
           uvx --from "tox" --with "pip" --with "tox-uv" --python 3.12 --python-preference only-managed \
             tox -p
 
-  cmake-build:
+  cmake:
+    desc: CMake build, test, and pack
+    aliases: [c, make]
+    cmds:
+      - task: cmake:build
+      - task: cmake:test
+      - task: cmake:pack
+
+  cmake:configure:
+    internal: true
     sources:
-      - '**/*.cpp'
-      - '**/*.h'
+      - src/*.cc
+      - src/*.h
+      - src/*.proto
     generates:
-      - '{{.BUILD_DIR}}/bin/sentencepiece{{exeExt}}'
+      - build/setup*/CMakeCache.txt
     cmds:
       - cmd: |
           cmake -B "{{.BUILD_DIR}}" \
           -DSPM_BUILD_TEST=ON \
           -DSPM_ENABLE_SHARED=OFF \
           -DCMAKE_INSTALL_PREFIX="{{.INSTALL_DIR}}"
+
+  cmake:build:
+    internal: true
+    deps: [cmake:configure]
+    sources:
+      - '**/*.cpp'
+      - '**/*.h'
+    generates:
+      - '{{.BUILD_DIR}}/bin/sentencepiece{{exeExt}}'
+    cmds:
       - cmd: |
           cmake --build "{{.BUILD_DIR}}" \
             --config Release \
@@ -91,17 +189,24 @@ tasks:
           cd "{{.BUILD_DIR}}"
           cpack
 
-  sync:
-    sources:
-      - pyproject.toml
-    generates:
-      - .venv/pyvenv.cfg
+  cmake:test:
+    internal: true
     cmds:
-      - cmd: uv venv --allow-existing
-      - cmd: rm -f uv.lock
-      - cmd: uv sync --no-install-project
+      - cmd: |
+          cd "{{.BUILD_DIR}}"
+          ctest -C Release --output-on-failure
+      - cmd: |
+          cd "{{.BUILD_DIR}}"
+          cpack
+
+  cmake:pack:
+    cmds:
+      - cmd: |
+          cd "{{.BUILD_DIR}}"
+          cpack
 
   requirements:
+    desc: Generate requirements files
     aliases: [r, pc]
     cmds:
       - task: pip-compile
@@ -110,6 +215,7 @@ tasks:
         vars: { INPUT: cibuildwheel.in }
 
   pip-compile:
+    internal: true
     requires:
       vars: [INPUT]
     vars:
@@ -135,29 +241,6 @@ tasks:
             --config pyproject.toml \
             --output-file $RQ_OUT_PATH \
             $RQ_IN_PATH
-
-  build-python-extension:
-    deps: [requirements]
-    aliases: [build-ext, py-ext, py]
-    cmds:
-      - cmd: |
-          uv pip install \
-            --require-hashes --no-deps -r .github/workflows/requirements/base.txt
-      - cmd: |
-          uv run --no-sync python ./setup.py build -v
-      - cmd: |
-          uv run --no-sync python ./setup.py build_ext --inplace --verbose
-      - cmd: |
-          uv run --no-sync python ./setup.py bdist_wheel
-      - cmd: |
-          uv run --no-sync python -m pytest
-
-  ci:
-    cmds:
-      - cmd: git add .
-      - cmd: git clean -xfd
-      - task: build
-      - task: build-python-extension
 
   ci-wheels:
     deps: [sync]
