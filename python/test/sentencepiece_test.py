@@ -22,6 +22,9 @@ import sys
 import unittest
 from collections import defaultdict
 
+# todo: remove this when we have a proper way to run tests
+sys.path.insert(0, 'src')
+
 TEST_DIR = os.path.dirname(__file__)
 SRC_ROOT_DIR = os.path.normpath(os.path.join(TEST_DIR, os.pardir, os.pardir))
 try:
