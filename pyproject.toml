@@ -51,11 +51,10 @@ cibuildwheel = { git = "https://github.com/pypa/cibuildwheel" }
 
 [tool.cibuildwheel]
 environment = { UV_PYTHON_PREFERENCE = "managed", UV_PYTHON_DOWNLOADS = "automatic" }
-before-build = ["uv sync"]
-build-frontend = { name = "build[uv]", args = ["--installer=uv"] }
+build-frontend = { name = "build[uv]" }
 test-requires = ["pytest", "pytest-cov"]
-test-command = "pytest {project}/python/test"
-skip = ["pp*", "cp35-*", "cp36-*", "cp37-*", "cp38-*", "*-musllinux_*"]
+test-command = "python {project}/python/test/sentencepiece_test.py"
+skip = ["pp*", "*-musllinux_*"]
 build-verbosity = 1
 
 [tool.cibuildwheel.windows]
