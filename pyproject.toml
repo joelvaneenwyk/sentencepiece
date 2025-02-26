@@ -46,9 +46,6 @@ concurrent-installs = 4
 python-downloads = "automatic"
 python-preference = "managed"
 
-[tool.uv.sources]
-cibuildwheel = { git = "https://github.com/pypa/cibuildwheel" }
-
 [tool.cibuildwheel]
 environment = { UV_PYTHON_PREFERENCE = "managed", UV_PYTHON_DOWNLOADS = "automatic" }
 build-frontend = { name = "build[uv]" }
