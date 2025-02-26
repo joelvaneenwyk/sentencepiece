@@ -101,6 +101,8 @@ if (MSVC)
     string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELEASE        ${CMAKE_CXX_FLAGS_RELEASE})
     string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
   endif()
+else()
+  add_definitions(-Wno-stringop-overflow)
 endif()
 
 if (APPLE)

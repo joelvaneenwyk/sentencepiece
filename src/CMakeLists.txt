@@ -277,6 +277,7 @@ if (NOT MSVC)
     PROPERTIES COMPILE_FLAGS "-Wno-misleading-indentation")
   set_source_files_properties(${SPM_TEST_SRCS}
     PROPERTIES COMPILE_FLAGS "-Wno-sign-compare")
+  add_definitions(-Wno-stringop-overflow)
   if (SPM_ENABLE_SHARED)
     set_property(TARGET sentencepiece APPEND_STRING PROPERTY COMPILE_FLAGS " -DPIC")
     set_property(TARGET sentencepiece_train APPEND_STRING PROPERTY COMPILE_FLAGS " -DPIC")
