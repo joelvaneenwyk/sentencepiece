@@ -66,7 +66,7 @@ tasks:
     cmds:
       # Direct call to make sure that works
       - cmd: |
-          uv run python ./python/test/sentencepiece_test.py
+          uv run --no-sync python ./python/test/sentencepiece_test.py
       # Call through 'pytest' which should also work
       - cmd: |
           uv run --no-sync python -m pytest
@@ -171,8 +171,9 @@ tasks:
     desc: Build a single wheel using `cibuildwheel`
     cmds:
       - cmd: |
-          target="$(uv run cibuildwheel --print-build-identifiers 2>/dev/null | grep cp312 | grep x86)"
-          uv run cibuildwheel --only "$target"
+          uv pip install cibuildwheel
+          target="$(uv run --no-sync --quiet cibuildwheel --print-build-identifiers 2>/dev/null | grep cp312 | grep x86)"
+          uv run --no-sync cibuildwheel --only "$target"
 
   cibuildwheel:
     desc: Build wheels using `cibuildwheel`
