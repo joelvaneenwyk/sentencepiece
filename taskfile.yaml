@@ -46,7 +46,7 @@ tasks:
     cmds:
       - for: ["3.9", "3.10", "3.11", "3.12"]
         cmd: |
-          if pyenv --version >nul; then
+          if pyenv --version >/dev/null 2>&1; then
             pyenv install --skip-existing {{ .ITEM }}
           fi
 
