@@ -166,6 +166,14 @@ tasks:
       - cmd: |
           sudo docker run hello-world
 
+  cibuildwheel:single:
+    aliases: [cibws, single]
+    desc: Build a single wheel using `cibuildwheel`
+    cmds:
+      - cmd: |
+          target="$(uv run cibuildwheel --print-build-identifiers 2>/dev/null | grep cp312 | grep x86)"
+          uv run cibuildwheel --only "$target"
+
   cibuildwheel:
     desc: Build wheels using `cibuildwheel`
     aliases: [wheelhouse, wheels, wh, cibw]
