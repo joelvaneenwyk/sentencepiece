@@ -50,7 +50,7 @@ cibuildwheel = { git = "https://github.com/pypa/cibuildwheel" }
 
 [tool.cibuildwheel]
 environment = { UV_PYTHON_PREFERENCE = "managed", UV_PYTHON_DOWNLOADS = "automatic" }
-before-build = ["uv sync --locked"]
+before-build = ["uv sync"]
 build-frontend = { name = "build[uv]", args = ["--installer=uv"] }
 test-requires = ["pytest", "pytest-cov"]
 test-command = "pytest {project}/python/test"
