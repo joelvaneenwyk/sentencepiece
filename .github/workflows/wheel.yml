@@ -20,7 +20,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-11]
+        # joelvaneenwyk: removed 'windows-latest, macOS-11' for faster builds
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     name: Build wheels on ${{ matrix.os }}
 
@@ -67,10 +68,14 @@ jobs:
         working-directory: ${{github.workspace}}
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
-          CIBW_ARCHS_LINUX: auto aarch64
-          CIBW_ARCHS_MACOS: x86_64 universal2 arm64
-          CIBW_ARCHS_WINDOWS: auto ARM64
-          CIBW_SKIP: "pp* *-musllinux_*"
+          # joelvaneenwyk: removed 'aarch64' for faster builds
+          CIBW_ARCHS_LINUX: auto
+          # joelvaneenwyk: removed 'universal2 arm64' for faster builds
+          CIBW_ARCHS_MACOS: x86_64
+          # joelvaneenwyk: removed 'ARM64' for faster builds
+          CIBW_ARCHS_WINDOWS: auto
+          # joelvaneenwyk: added the following: *-win32 *-manylinux_i686
+          CIBW_SKIP: "pp* *-musllinux_* *-win32 *-manylinux_i686"
           CIBW_BUILD_VERBOSITY: 1
 
       - name: Build sdist archive

@@ -15,7 +15,9 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ ubuntu-latest, ubuntu-20.04, windows-latest, macOS-11 ]
+        # joelvaneenwyk: reduced platform set
+        #os: [ ubuntu-latest, ubuntu-20.04, windows-latest, macOS-11 ]
+        os: [ ubuntu-latest, windows-latest ]
         arch: [ x64 ]
         include:
           - os: windows-latest
