@@ -195,8 +195,9 @@ else:
   cmdclass = {'build_ext': cmake_build_ext}
 
 setup(
-    version=PACKAGE_VERSION,  # type: ignore
-    ext_modules=[SENTENCEPIECE_EXT],
+    name='sentencepiece',
+    description='SentencePiece python wrapper',
+    version=PACKAGE_VERSION,
     py_modules=[
         'sentencepiece/__init__',
         'sentencepiece/_version',
@@ -204,7 +205,6 @@ setup(
         'sentencepiece/sentencepiece_pb2',
     ],
     package_dir={'': 'python/src'},
+    ext_modules=[SENTENCEPIECE_EXT],
     cmdclass=cmdclass,
-    test_suite='sentencepiece_test.suite',
-    tests_require=['pytest', 'pytest-cov'],
 )
