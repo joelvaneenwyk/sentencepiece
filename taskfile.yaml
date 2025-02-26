@@ -20,12 +20,6 @@ tasks:
     cmds:
       - task: test
 
-  wheelhouse:
-    cmds:
-      - cmd: |
-          uvx --from "cibuildwheel" --with "pip" --python 3.9 --python-preference only-managed \
-            python -m cibuildwheel --output-dir wheelhouse
-
   build:
     vars:
       PACKAGE_VERSION:
@@ -45,6 +39,21 @@ tasks:
     cmds:
       - cmd: |
           uv run --no-sync python ./python/test/sentencepiece_test.py
+      - task: tox
+      - task: wheelhouse
+
+  cibuildwheel:
+    deps: [sync]
+    cmds:
+      - cmd: |
+          uvx --from git+https://github.com/pypa/cibuildwheel --python 3.12 --python-preference only-managed \
+            cibuildwheel --output-dir wheelhouse
+
+  tox:
+    cmds:
+      - cmd: |
+          uvx --from "tox" --with "pip" --with "tox-uv" --python 3.12 --python-preference only-managed \
+            tox -p
 
   cmake-build:
     sources:
