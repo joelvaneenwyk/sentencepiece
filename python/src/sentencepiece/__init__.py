@@ -7,10 +7,10 @@
 from sys import version_info as _swig_python_version_info
 
 # Import the low-level C/C++ module
-try:
-    from . import _sentencepiece  # type: ignore
-except ImportError:
-    import _sentencepiece  # type: ignore
+if __package__ or "." in __name__:
+    from . import _sentencepiece
+else:
+    import _sentencepiece
 
 try:
     import builtins as __builtin__
