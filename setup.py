@@ -127,13 +127,9 @@ if os.name == 'nt':
   elif arch == "arm64":
     cmake_arch = "ARM64"
 
-  # Select VS version based on Python version
-  if sys.version_info >= (3, 10):
-    vs_version = 'Visual Studio 17 2022'
-  elif sys.version_info >= (3, 8):
-    vs_version = 'Visual Studio 16 2019'
-  else:
-    vs_version = 'Visual Studio 15 2017'
+  # Always use the latest version of Visual Studio as build
+  # machines are always updated.
+  vs_version = 'Visual Studio 17 2022'
 
   source_dir = os.path.abspath(os.path.dirname(__file__))
   build_dir = os.path.join(
