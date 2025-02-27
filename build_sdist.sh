@@ -3,11 +3,11 @@
 set -eax
 
 build_sdist() {
-  target_dir="$(dirname "$0")/sentencepiece"
-  export target_dir
-
-  source_root_dir="$(dirname "$0")"
+  source_root_dir="$(cd "$(dirname "$0")" 2>/dev/null; pwd)"
   export source_root_dir
+
+  target_dir="${source_root_dir}/build/sdist"
+  export target_dir
 
   export target_src_dir="${target_dir}/python/src/sentencepiece"
 
@@ -24,12 +24,26 @@ build_sdist() {
     cp -f -R "${source_root_dir}/${i}" "${target_dir}"
   done
 
-  cp -f -R ./python/src/sentencepiece/*.py "${target_src_dir}/"
-  cp -f -R ./python/src/sentencepiece/*.cxx "${target_src_dir}/"
-  cp -f -R ./python/src/sentencepiece/*.i "${target_src_dir}/"
+  cp -f -R \
+    "${source_root_dir}/python/src/sentencepiece/"*.py \
+    "${target_src_dir}/"
+  cp -f -R \
+    "${source_root_dir}/python/src/sentencepiece/"*.cxx \
+    "${target_src_dir}/"
+  cp -f -R \
+    "${source_root_dir}/python/src/sentencepiece/"*.i \
+    "${target_src_dir}/"
 
-  cd sentencepiece
-  uv run python ./setup.py sdist
+  (
+    cd "$target_dir"
+    uv sync \
+      --python-preference only-managed \
+      --locked --no-install-project
+    uv run \
+      --python-preference only-managed \
+      --locked --no-reinstall --no-sync \
+      python -m build --sdist
+  )
 }
 
 build_sdist
