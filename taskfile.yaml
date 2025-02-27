@@ -182,8 +182,10 @@ tasks:
     deps: [docker, sync, python]
     cmds:
       - cmd: |
-          uvx --from git+https://github.com/pypa/cibuildwheel --python-preference only-managed \
-            cibuildwheel --output-dir wheelhouse
+          uv venv --allow-existing
+          uv pip install cibuildwheel
+          uv run --no-sync cibuildwheel \
+            --output-dir wheelhouse
 
   tox:
     desc: Run tox tests
