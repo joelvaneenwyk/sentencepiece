@@ -51,17 +51,26 @@ environment = { UV_PYTHON_PREFERENCE = "managed", UV_PYTHON_DOWNLOADS = "automat
 build-frontend = { name = "build[uv]" }
 test-requires = ["pytest", "pytest-cov"]
 test-command = "python {project}/python/test/sentencepiece_test.py"
-skip = ["pp*", "*-musllinux_*"]
+skip = [
+    "cp{39,310,311}-*",
+    "pp*",
+    "*-musllinux_*",
+    "*-win32",
+    "*-manylinux_i686",
+]
 build-verbosity = 1
 
 [tool.cibuildwheel.windows]
-archs = ["auto", "ARM64"]
+# joelvaneenwyk: removed 'ARM64' for faster builds
+archs = ["auto"]
 
 [tool.cibuildwheel.macos]
-archs = ["x86_64", "universal2", "arm64"]
+# joelvaneenwyk: removed 'universal2 arm64' for faster builds
+archs = ["x86_64"]
 
 [tool.cibuildwheel.linux]
-archs = ["auto", "aarch64"]
+# joelvaneenwyk: removed 'aarch64' for faster builds
+archs = ["auto"]
 
 [tool.pip-tools]
 generate_hashes = true
@@ -112,7 +121,6 @@ commands = [["mypy", "python{/}src"], ["mypy", "python{/}test"]]
 [dependency-groups]
 dev = [
     "build[uv]",
-    "cibuildwheel[uv]; python_version >= '3.11'",
     "cmake",
     "coverage>=7.6.12",
     "cython",

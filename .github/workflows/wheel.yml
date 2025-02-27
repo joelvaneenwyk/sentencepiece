@@ -67,16 +67,6 @@ jobs:
       - name: Build wheels
         working-directory: ${{github.workspace}}
         run: python -m cibuildwheel --output-dir wheelhouse
-        env:
-          # joelvaneenwyk: removed 'aarch64' for faster builds
-          CIBW_ARCHS_LINUX: auto
-          # joelvaneenwyk: removed 'universal2 arm64' for faster builds
-          CIBW_ARCHS_MACOS: x86_64
-          # joelvaneenwyk: removed 'ARM64' for faster builds
-          CIBW_ARCHS_WINDOWS: auto
-          # joelvaneenwyk: added the following: *-win32 *-manylinux_i686
-          CIBW_SKIP: "pp* *-musllinux_* *-win32 *-manylinux_i686"
-          CIBW_BUILD_VERBOSITY: 1
 
       - name: Build sdist archive
         working-directory: ${{github.workspace}}
