@@ -36,14 +36,15 @@ build_sdist() {
 
   (
     cd "$target_dir"
-    uv sync \
-      --python-preference only-managed \
-      --locked --no-install-project
+    uv venv --allow-existing
+    uv pip install build
     uv run \
       --python-preference only-managed \
       --locked --no-reinstall --no-sync \
       python -m build --sdist
   )
+  mkdir -p "${source_root_dir}/dist/"
+  cp -f "${target_dir}/dist/"* "${source_root_dir}/dist/"
 }
 
 build_sdist
